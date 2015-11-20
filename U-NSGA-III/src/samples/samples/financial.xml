@@ -13,18 +13,21 @@ or "many-objective" -->
     </seed>
     <!-- All the variables along with their types (either real or binary) -->
     <variables>
-		<variable type="real" min="1" max="100">x0</variable> <!-- EMA_short for DEMAC -->
-		<variable type="real" min="1" max="200">x1</variable> <!-- EMA_long for DEMAC -->
-		<variable type="real" min="3" max="100">x2</variable> <!-- EMA_short for MACD -->
-		<variable type="real" min="3" max="100">x3</variable> <!-- EMA_long for MACD -->
-		<variable type="real" min="1" max="100">x4</variable> <!-- Signal for MACD -->
-		<variable type="real" min="3" max="100">x5</variable> <!-- N_RSI for RSI -->
-		<variable type="real" min="10" max="40">x6</variable> <!-- Lower Boundary for RSI -->
-		<variable type="real" min="60" max="90">x7</variable> <!-- Upper Boundary for RSI -->
-		<variable type="real" min="3" max="100">x8</variable> <!-- N_RSI for MARSI -->
-		<variable type="real" min="10" max="40">x9</variable> <!-- Lower Boundary for MARSI -->
-		<variable type="real" min="60" max="90">x10</variable> <!-- Upper Boundary for MARSI -->
-		<variable type="real" min="1" max="100">x11</variable> <!-- N_SMA for MARSI -->	
+		<!-- <variable type="real" min="1" max="100">x0</variable> --> <!-- EMA_short for DEMAC -->
+		<!-- <variable type="real" min="1" max="200">x1</variable> --> <!-- EMA_long for DEMAC -->
+		<!-- <variable type="real" min="3" max="100">x2</variable> --> <!-- EMA_short for MACD -->
+		<!-- <variable type="real" min="3" max="100">x3</variable> --> <!-- EMA_long for MACD -->
+		<!-- <variable type="real" min="1" max="100">x4</variable> --> <!-- Signal for MACD -->
+		<!-- <variable type="real" min="3" max="100">x5</variable> --> <!-- N_RSI for RSI -->
+		<!-- <variable type="real" min="10" max="40">x6</variable> --> <!-- Lower Boundary for RSI -->
+		<!-- <variable type="real" min="60" max="90">x7</variable> --> <!-- Upper Boundary for RSI -->
+		<!-- <variable type="real" min="3" max="100">x8</variable> --> <!-- N_RSI for MARSI -->
+		<!-- <variable type="real" min="10" max="40">x9</variable> --> <!-- Lower Boundary for MARSI -->
+		<!-- <variable type="real" min="60" max="90">x10</variable> --> <!-- Upper Boundary for MARSI -->
+		<!-- <variable type="real" min="1" max="100">x11</variable> --> <!-- N_SMA for MARSI -->
+		<variable type="real" min="3" max="100">x0</variable> <!-- N_RSI for RSI -->
+		<variable type="real" min="10" max="40">x1</variable> <!-- Lower Boundary for RSI -->
+		<variable type="real" min="60" max="90">x2</variable> <!-- Upper Boundary for RSI -->
     </variables>
     <!-- Objective functions. Only the variables defined above can be used in 
     any of these function -->
