@@ -4,8 +4,21 @@ import emo.Individual;
 import emo.OptimizationProblem;
 import emo.VirtualIndividual;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.xml.stream.XMLStreamException;
 import net.sourceforge.jeval.EvaluationException;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
 import parsing.IndividualEvaluator;
 import parsing.InvalidOptimizationProblemException;
 
@@ -17,16 +30,38 @@ import parsing.InvalidOptimizationProblemException;
 */
 public class FinancialEvaluator extends IndividualEvaluator 
 {
-	private int[] stockData_highs;
-	private int[] stockData_lows;
-	private int[] stockData_closes;
+	private List<Double> stockData_highs;
+	private List<Double> stockData_lows;
+	private List<Double> stockData_opens;
+	private List<Double> stockData_closes;
 	
-	public FinancialEvaluator() {
-		// WARNING: temporary variables for compilation purposes
-    	// TODO: replace with the arrays of read in values from the CSV Dow Jones file
-		stockData_highs = new int[100];
-		stockData_lows = new int[100];
-		stockData_closes = new int[100];
+	public FinancialEvaluator() throws IOException {
+		// Initialize the ArrayLists
+		stockData_highs = new ArrayList<Double>();
+		stockData_lows = new ArrayList<Double>();
+		stockData_opens = new ArrayList<Double>();
+		stockData_closes = new ArrayList<Double>();
+		
+		// TODO: Determine the relative path for this file
+		// Change this line for the location on your computer!
+		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL.csv");
+		
+		// Read the data into the ArrayLists
+		// Note: the CSV file should be formatted with: (a) headers as the first line,
+		// (b) data starting at the second line, (c) no extra lines at the end of the file,
+		// (d) the data is ordered from earliest date to most current date!
+		CSVParser parser = CSVParser.parse(djiaDataFile, StandardCharsets.UTF_8, CSVFormat.RFC4180);
+		for (CSVRecord record : parser)
+		{
+			// Ignore the first record because it contains the data headers
+			if(parser.getRecordNumber() != 1)
+			{
+				stockData_highs.add(Double.parseDouble(record.get(2)));
+				stockData_lows.add(Double.parseDouble(record.get(3)));
+				stockData_opens.add(Double.parseDouble(record.get(1)));
+				stockData_closes.add(Double.parseDouble(record.get(4)));
+			}
+		}
 	}
 	
 	@Override
@@ -65,7 +100,7 @@ public class FinancialEvaluator extends IndividualEvaluator
 //            g[0] = x[1] - x[0]; // EMA_long >= EMA =_short (DMAC)
 //            g[1] = x[3] - x[2]; // EMA_long >= EMA =_short (MACD)
 //            g[2] = x[2] - x[4]; // Signal <= EMA_short (MACD)
-            // Temporary substitute for the three constraints to use in the probem
+            // Temporary substitute for the three constraints to use in the problem
             // TODO: remove these and uncomment the above
             g[0] = 0; g[1] = 0; g[2] = 0;
             // Set constraints violations
@@ -125,15 +160,16 @@ public class FinancialEvaluator extends IndividualEvaluator
     	double upDays = 0;
     	double downDays = 0;
 
-    	for ( int observeDay = currDay; observeDay >= currDay - n; observeDay-- ) {
+    	for ( int observeDay = currDay; observeDay > currDay - n; observeDay-- ) {
     		if (observeDay < 0) {
     			// Decrement n so that the relative strength calculation is not affected by the non-existent value
     			n -= 1;
-    		} else if (stockData_highs[observeDay] < stockData_lows[observeDay]) {
+    		} else if (stockData_closes.get(observeDay) < stockData_opens.get(observeDay)) {
     			downDays++;
-    		} else {
+    		} else if (stockData_closes.get(observeDay) > stockData_opens.get(observeDay)){
     			upDays++;
     		}
+    		// Do nothing if there was no change during the day
     	}
     	double rs = upDays/downDays;
     	double rsi = 100 - (100.0 / (1.0 + rs));
@@ -150,9 +186,9 @@ public class FinancialEvaluator extends IndividualEvaluator
     int[] evaluateIndicators( double[] x ) {
     	// throw new UnsupportedOperationException();
 		// TODO: change this variable type so that it can hold buy/sell signals for all four indicators
-		int[] signals = new int[stockData_closes.length];
+		int[] signals = new int[stockData_closes.size()];
     	
-    	for ( int currentDay = 0; currentDay < stockData_closes.length; currentDay++ ) {
+    	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
 
     		/* DEMAC */
 //    		// Calculate EMA_short
