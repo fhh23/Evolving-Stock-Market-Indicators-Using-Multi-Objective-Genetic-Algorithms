@@ -57,7 +57,7 @@ public class TestScript_FixedGenerations extends TestScript {
 
     // According to the values of the following flags the script calculates
     // Hypervolume(for two objectives only), IGD and GD.
-    static boolean calculateHV = true;
+    static boolean calculateHV = false;
     static boolean calculateGD = false;
     static boolean calculateIGD = false;
     // Number of auto generated Pareto points (used to calculate GD and/or IGD)
