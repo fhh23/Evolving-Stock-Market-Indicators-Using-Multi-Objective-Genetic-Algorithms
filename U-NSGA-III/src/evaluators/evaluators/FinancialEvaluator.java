@@ -8,11 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
 import javax.xml.stream.XMLStreamException;
+
 import net.sourceforge.jeval.EvaluationException;
 
 import org.apache.commons.csv.CSVFormat;
@@ -21,6 +22,8 @@ import org.apache.commons.csv.CSVRecord;
 
 import parsing.IndividualEvaluator;
 import parsing.InvalidOptimizationProblemException;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 /*
 *
@@ -34,6 +37,10 @@ public class FinancialEvaluator extends IndividualEvaluator
 	private List<Double> stockData_lows;
 	private List<Double> stockData_opens;
 	private List<Double> stockData_closes;
+	private List<Double> returns;
+	private int[] signals;
+	public final static double[] NADIR_POINT = {100000.0, 100000.0};
+    public final static double[] IDEAL_POINT = {5000, 5000};
 	
 	public FinancialEvaluator() throws IOException {
 		// Initialize the ArrayLists
@@ -44,7 +51,7 @@ public class FinancialEvaluator extends IndividualEvaluator
 		
 		// TODO: Determine the relative path for this file
 		// Change this line for the location on your computer!
-		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL.csv");
+		File djiaDataFile = new File("C:/MSU Fall'15/CSE 848/U-NSGA-III/AAPL.csv");
 		
 		// Read the data into the ArrayLists
 		// Note: the CSV file should be formatted with: (a) headers as the first line,
@@ -62,18 +69,19 @@ public class FinancialEvaluator extends IndividualEvaluator
 				stockData_closes.add(Double.parseDouble(record.get(4)));
 			}
 		}
+		signals = new int[stockData_closes.size()];
 	}
 	
 	@Override
 	public double[] getReferencePoint() 
     {
-    	throw new UnsupportedOperationException("Nadir point is not defined for this problem.");
+		return Arrays.copyOf(NADIR_POINT, NADIR_POINT.length);
     }
 
 	@Override
 	public double[] getIdealPoint() 
     {
-    	throw new UnsupportedOperationException("Ideal point is not defined for this problem.");
+		return Arrays.copyOf(IDEAL_POINT, IDEAL_POINT.length);
     }
 
     @Override
@@ -186,7 +194,7 @@ public class FinancialEvaluator extends IndividualEvaluator
     int[] evaluateIndicators( double[] x ) {
     	// throw new UnsupportedOperationException();
 		// TODO: change this variable type so that it can hold buy/sell signals for all four indicators
-		int[] signals = new int[stockData_closes.size()];
+		//int[] signals = new int[stockData_closes.size()];
     	
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
 
@@ -215,11 +223,11 @@ public class FinancialEvaluator extends IndividualEvaluator
     		// Change to x[0] to x[5] for the full set of indicators
     		double rsi_rsi = calculateRSI(currentDay, (int) Math.floor(x[0])); 
     		if (rsi_rsi < x[1]) { 				 // Change to x[6] for the full set of indicators
-    			signals[2] = 1; // Over-sold condition: buy
+    			signals[currentDay] = 1; // Over-sold condition: buy
     		} else if (rsi_rsi > x[2]) {		 // Change to x[7] for the full set of indicators
-    			signals[2] = -1; // Over-bought condition: sell
+    			signals[currentDay] = -1; // Over-bought condition: sell
     		} else {
-    			signals[2] = 0;
+    			signals[currentDay] = 0;
     		}
 
     		/* MARSI */
@@ -242,10 +250,60 @@ public class FinancialEvaluator extends IndividualEvaluator
 
     // TODO: run the simulation using the new indicator values and output the value of the objective functions
     double[] getObjectives( int[] indicators ) {
-    	throw new UnsupportedOperationException();
+    	//throw new UnsupportedOperationException();
     	
+    	int n = stockData_closes.size(); //number of trading days
+    	double capital = 20000; //amount initially invested
+    	double wallet = capital;
+    	returns = new ArrayList<Double>();
+    	int buy = 0;
+    	int sell = 0;
+    	double buyvalue = 0;
+    	double sellvalue = 0;
+    	
+    	//find all returns
+    	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
+    		if (signals[currentDay] == 1) {
+    			if ((stockData_opens.get(currentDay) < wallet) && (buy == 0)) {
+    				buyvalue = stockData_opens.get(currentDay);
+    				wallet -= buyvalue;
+    				sell = 0;
+    			}
+    		}
+    		else if (signals[currentDay] == -1) { 	
+    			if (sell == 0) {
+    				sellvalue = stockData_opens.get(currentDay);
+    				wallet += sellvalue;
+    				buy = 0;
+    				returns.add(sellvalue-buyvalue);
+    			}
+    		}
+    				
+    	}
+    	
+    	//sum all returns
+    	double sum = 0;
+    	for ( int index = 0; index < returns.size(); index++ ) {
+    		sum += returns.get(index);
+    	}
+    	
+    	//average of returns
+    	double average = sum/returns.size();
+    	
+    	//std dev of returns
+    	double stddev_sum = 0;
+    	for ( int index = 0; index < returns.size(); index++ ) {
+    		stddev_sum += pow(returns.get(index) - average, 2);
+    	}
+    	double stddev = sqrt(stddev_sum/returns.size());
+
     	/* Annual Return */
+    	double annual_return = (pow(sum/capital,1/n)-1) * 100; 
     	
     	/* Sharpe Ratio */
+    	double sharpe_ratio = average/stddev;
+    	
+    	double[] objs = {annual_return, sharpe_ratio};
+		return objs;
     }
 }
