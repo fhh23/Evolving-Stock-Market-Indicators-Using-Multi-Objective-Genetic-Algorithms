@@ -130,8 +130,8 @@ public class TestScript_FixedGenerations extends TestScript {
             int popSizeStart = 100;
             int popSizeEnd = 100;
             // Generations Parameter
-            int genCountStart = 200;
-            int genCountEnd = 200;
+            int genCountStart = 50; // TODO: change this back to 200 after debugging is complete
+            int genCountEnd = 50; // TODO: change this back to 200 after debugging is complete
             // Parameters Steps
             int etaCStep = 10;
             int etaMStep = 10;
@@ -221,9 +221,9 @@ public class TestScript_FixedGenerations extends TestScript {
                                     matlabScriptFilePath = outputDir + matlabScriptFilePath;
                                     // Dump the Matlab plotting script
                                     if (optimizationProblem.objectives.length == 2) {
-                                        InputOutput.dumpMatlabPlottinScriptFor2dPoints(matlabScriptFilePath, individualEvaluator, finalPopulation);
+                                        //InputOutput.dumpMatlabPlottinScriptFor2dPoints(matlabScriptFilePath, individualEvaluator, finalPopulation);
                                     } else {
-                                        InputOutput.dumpMatlabPlottinScriptFor3dPoints(matlabScriptFilePath, individualEvaluator, finalPopulation);
+                                        //InputOutput.dumpMatlabPlottinScriptFor3dPoints(matlabScriptFilePath, individualEvaluator, finalPopulation);
                                     }
                                 }
                                 // Reset the number of function evaluations to start

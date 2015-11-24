@@ -39,8 +39,6 @@ public class FinancialEvaluator extends IndividualEvaluator
 	private List<Double> stockData_closes;
 	private List<Double> returns;
 	private int[] signals;
-	public final static double[] NADIR_POINT = {100000.0, 100000.0};
-    public final static double[] IDEAL_POINT = {5000, 5000};
 	
 	public FinancialEvaluator() throws IOException {
 		// Initialize the ArrayLists
@@ -51,7 +49,7 @@ public class FinancialEvaluator extends IndividualEvaluator
 		
 		// TODO: Determine the relative path for this file
 		// Change this line for the location on your computer!
-		File djiaDataFile = new File("C:/MSU Fall'15/CSE 848/U-NSGA-III/AAPL.csv");
+		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL.csv");
 		
 		// Read the data into the ArrayLists
 		// Note: the CSV file should be formatted with: (a) headers as the first line,
@@ -75,13 +73,15 @@ public class FinancialEvaluator extends IndividualEvaluator
 	@Override
 	public double[] getReferencePoint() 
     {
-		return Arrays.copyOf(NADIR_POINT, NADIR_POINT.length);
+		//throw new UnsupportedOperationException("Nadir point is not defined for this problem.");
+		return null;
     }
 
 	@Override
 	public double[] getIdealPoint() 
     {
-		return Arrays.copyOf(IDEAL_POINT, IDEAL_POINT.length);
+		//throw new UnsupportedOperationException("Ideal point is not defined for this problem.");
+		return null;
     }
 
     @Override
@@ -96,7 +96,8 @@ public class FinancialEvaluator extends IndividualEvaluator
             throws EvaluationException 
     {
         double[] x = individual.real;
-        double[] objs = getObjectives(evaluateIndicators(x));
+        evaluateIndicators(x);
+        double[] objs = getObjectives();
         individual.setObjective(0, objs[0]);
         individual.setObjective(1, objs[1]);
         // Announce that objective function values are valid
@@ -191,7 +192,7 @@ public class FinancialEvaluator extends IndividualEvaluator
      * Output: buy/sell signals of the four technical indicators
      *         -1 = sell, 0 = no action, 1 = buy
      */ 
-    int[] evaluateIndicators( double[] x ) {
+    void evaluateIndicators( double[] x ) {
     	// throw new UnsupportedOperationException();
 		// TODO: change this variable type so that it can hold buy/sell signals for all four indicators
 		//int[] signals = new int[stockData_closes.size()];
@@ -244,13 +245,10 @@ public class FinancialEvaluator extends IndividualEvaluator
 //    		}
 
     	}
-    	
-		return signals;
     }
 
     // TODO: run the simulation using the new indicator values and output the value of the objective functions
-    double[] getObjectives( int[] indicators ) {
-    	//throw new UnsupportedOperationException();
+    double[] getObjectives() {
     	
     	int n = stockData_closes.size(); //number of trading days
     	double capital = 20000; //amount initially invested
