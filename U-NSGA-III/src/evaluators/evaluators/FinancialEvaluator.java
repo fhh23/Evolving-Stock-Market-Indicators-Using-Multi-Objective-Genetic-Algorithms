@@ -201,9 +201,9 @@ public class FinancialEvaluator extends IndividualEvaluator
 
     		/* DEMAC */
 //    		// Calculate EMA_short
-//    		double ema_short_demac = calculateEMA((int) Math.floor(x[0]), "price");
+//    		double ema_short_demac = calculateEMA((int) Math.round(x[0]), "price");
 //    		// Calculate EMA_long
-//    		double ema_long_demac = calculateEMA((int) Math.floor(x[1]), "price");
+//    		double ema_long_demac = calculateEMA((int) Math.round(x[1]), "price");
 //    		if (ema_short_demac > ema_long_demac) {
 //    			signals[0] = 1;
 //    		} else if (ema_short_demac < ema_long_demac){
@@ -213,16 +213,16 @@ public class FinancialEvaluator extends IndividualEvaluator
 //    		}
 
     		/* MACD */
-//    		double ema_short_macd = calculateEMA((int) Math.floor(x[2]), "price");
-//    		double ema_long_macd = calculateEMA((int) Math.floor(x[3]), "price");
+//    		double ema_short_macd = calculateEMA((int) Math.round(x[2]), "price");
+//    		double ema_long_macd = calculateEMA((int) Math.round(x[3]), "price");
 //    		double macd_line = ema_short_macd - ema_long_macd;
-//    		double signal_line = calculateEMA((int) Math.floor(x[4]), "macd");
+//    		double signal_line = calculateEMA((int) Math.round(x[4]), "macd");
 //    		// TODO: set the buy/sell signal value
 //    		signals[1] = 0;
 
     		/* RSI */
     		// Change to x[0] to x[5] for the full set of indicators
-    		double rsi_rsi = calculateRSI(currentDay, (int) Math.floor(x[0])); 
+    		double rsi_rsi = calculateRSI(currentDay, (int) Math.round(x[0])); 
     		if (rsi_rsi < x[1]) { 				 // Change to x[6] for the full set of indicators
     			signals[currentDay] = 1; // Over-sold condition: buy
     		} else if (rsi_rsi > x[2]) {		 // Change to x[7] for the full set of indicators
@@ -235,7 +235,7 @@ public class FinancialEvaluator extends IndividualEvaluator
 //    		double rs_marsi = 0; // TODO: needs to read in data from the text file
 //    		double rsi_marsi = 100 - (100.0 / (1.0 + rs_marsi));
 //    		// TODO: determine how the RSI indicator relates to the MARSI calculation
-//    		double marsi = calculateSMA((int) Math.floor(x[11]), "marsi");
+//    		double marsi = calculateSMA((int) Math.round(x[11]), "marsi");
 //    		if (marsi < x[9]) {
 //    			signals[3] = 1; // Oversold condition: buy
 //    		} else if (rsi_rsi > x[10]) {
