@@ -103,15 +103,13 @@ public class FinancialEvaluator extends IndividualEvaluator
         // Announce that objective function values are valid
         individual.validObjectiveFunctionsValues = true;
         // Update constraint violations if constraints exist
+        problem.constraints = null; // TODO: remove this when ready to use constraints
         if (problem.constraints != null) {
             // Three non-boundary constraints   
             double[] g = new double[3];
-//            g[0] = x[1] - x[0]; // EMA_long >= EMA =_short (DMAC)
-//            g[1] = x[3] - x[2]; // EMA_long >= EMA =_short (MACD)
-//            g[2] = x[2] - x[4]; // Signal <= EMA_short (MACD)
-            // Temporary substitute for the three constraints to use in the problem
-            // TODO: remove these and uncomment the above
-            g[0] = 0; g[1] = 0; g[2] = 0;
+            g[0] = x[1] - x[0]; // EMA_long >= EMA =_short (DMAC)
+            g[1] = x[3] - x[2]; // EMA_long >= EMA =_short (MACD)
+            g[2] = x[2] - x[4]; // Signal <= EMA_short (MACD)
             // Set constraints violations
             for (int i = 0; i < g.length; i++) {
                 if (g[i] < 0) {
@@ -169,10 +167,9 @@ public class FinancialEvaluator extends IndividualEvaluator
     	double upDays = 0;
     	double downDays = 0;
 
-    	for ( int observeDay = currDay; observeDay > currDay - n; observeDay-- ) {
+    	for ( int observeDay = currDay; observeDay >= currDay - n; observeDay-- ) {
     		if (observeDay < 0) {
-    			// Decrement n so that the relative strength calculation is not affected by the non-existent value
-    			n -= 1;
+    			break;
     		} else if (stockData_closes.get(observeDay) < stockData_opens.get(observeDay)) {
     			downDays++;
     		} else if (stockData_closes.get(observeDay) > stockData_opens.get(observeDay)){
@@ -180,9 +177,12 @@ public class FinancialEvaluator extends IndividualEvaluator
     		}
     		// Do nothing if there was no change during the day
     	}
-    	double rs = upDays/downDays;
-    	double rsi = 100 - (100.0 / (1.0 + rs));
-
+    	double rsi = 100; // Set to maximum initially
+    	if (downDays != 0) {
+    		double rs = upDays/downDays;
+    		rsi = 100 - (100.0 / (1.0 + rs));
+    	}
+    	
     	return rsi;
     }
     
@@ -251,11 +251,12 @@ public class FinancialEvaluator extends IndividualEvaluator
     double[] getObjectives() {
     	
     	int n = stockData_closes.size(); //number of trading days
+    	// TODO: base this value on the values in the data set
     	double capital = 20000; //amount initially invested
     	double wallet = capital;
     	returns = new ArrayList<Double>();
     	int buy = 0;
-    	int sell = 0;
+    	int sell = 1;
     	double buyvalue = 0;
     	double sellvalue = 0;
     	
@@ -266,6 +267,7 @@ public class FinancialEvaluator extends IndividualEvaluator
     				buyvalue = stockData_opens.get(currentDay);
     				wallet -= buyvalue;
     				sell = 0;
+    				buy = 1;
     			}
     		}
     		else if (signals[currentDay] == -1) { 	
@@ -273,6 +275,7 @@ public class FinancialEvaluator extends IndividualEvaluator
     				sellvalue = stockData_opens.get(currentDay);
     				wallet += sellvalue;
     				buy = 0;
+    				sell = 1;
     				returns.add(sellvalue-buyvalue);
     			}
     		}
@@ -296,12 +299,16 @@ public class FinancialEvaluator extends IndividualEvaluator
     	double stddev = sqrt(stddev_sum/returns.size());
 
     	/* Annual Return */
-    	double annual_return = (pow(sum/capital,1/n)-1) * 100; 
+    	double base = wallet / capital;
+    	int exponent_denom = n / 250;
+    	
+    	// double annual_return = (pow(wallet/capital, 1/(n/250))-1) * 100;
+    	double annual_return = (pow(base, 1.0/exponent_denom)-1) * 100;
     	
     	/* Sharpe Ratio */
     	double sharpe_ratio = average/stddev;
     	
-    	double[] objs = {annual_return, sharpe_ratio};
+    	double[] objs = {(-1) * annual_return, (-1) * sharpe_ratio};
 		return objs;
     }
 }

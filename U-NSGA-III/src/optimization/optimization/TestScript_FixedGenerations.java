@@ -137,7 +137,7 @@ public class TestScript_FixedGenerations extends TestScript {
             int etaMStep = 10;
             int popSizeStep = 20;
             int genCountStep = 10;
-            // Set you epsilon for epsilon-domination
+            // Set your epsilon for epsilon-domination
             double epsilon = 0.0;
 
             //List<String> hypervolumesList = new ArrayList<String>();

@@ -944,8 +944,8 @@ public class UnifiedNSGA3Engine extends AbstractGeneticEngine {
             double maxObj1 = OptimizationUtilities.getMaxObjectiveValue(parentPopulation, 0);
             double minObj2 = OptimizationUtilities.getMinObjectiveValue(parentPopulation, 1);
             double maxObj2 = OptimizationUtilities.getMaxObjectiveValue(parentPopulation, 1);
-            System.out.format("Objective-1 (MIN = %-15.3f, MIN = %-15.3f)%n", minObj1, maxObj1);
-            System.out.format("Objective-2 (MIN = %-15.3f, MIN = %-15.3f)%n", minObj2, maxObj2);
+            System.out.format("Objective-1 (MIN = %-15.3f, MAX = %-15.3f)%n", minObj1, maxObj1);
+            System.out.format("Objective-2 (MIN = %-15.3f, MAX = %-15.3f)%n", minObj2, maxObj2);
         }
         // Return the final population
         return finalPopulation;
