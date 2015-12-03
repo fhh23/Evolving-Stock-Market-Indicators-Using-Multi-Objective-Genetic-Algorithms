@@ -306,8 +306,14 @@ public class FinancialEvaluator extends IndividualEvaluator
     	double annual_return = (pow(base, 1.0/exponent_denom)-1) * 100;
     	
     	/* Sharpe Ratio */
-    	double sharpe_ratio = average/stddev;
-    	
+    	double sharpe_ratio = 0;
+    	if (returns.size() > 4) {
+    		sharpe_ratio = average/stddev;
+    		//System.out.println("returns size " + returns.size());
+    	}
+    	else
+    		sharpe_ratio = 0;
+    
     	double[] objs = {(-1) * annual_return, (-1) * sharpe_ratio};
 		return objs;
     }
