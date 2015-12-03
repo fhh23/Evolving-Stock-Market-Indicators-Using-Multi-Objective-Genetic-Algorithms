@@ -128,8 +128,9 @@ public class FinancialEvaluator extends IndividualEvaluator
     
     /*
      * Calculate the Simple Moving Average (SMA) of the data provided as input for the specified number of days
-     * Input: n, the number of days for look-back period (n >= 0)
-     *        dataValues, the values to use for the calculation of the EMA
+     * Input: n, the number of days for look-back period (n >= 1)
+     *        dataValues, the values to use for the calculation of the SMA
+     * Output: Simple Moving Average of the given data over all valid days in the look-back period
      */
     double calculateSMA( int currDay, int n, List<Double> dataValues )
     {
@@ -146,8 +147,9 @@ public class FinancialEvaluator extends IndividualEvaluator
     
     /*
      *  Calculate the Exponential Moving Average (EMA) of the data provided as input for the specified number of days
-     *  Input: n, the number of days for look-back period
+     *  Input: n, the number of days for look-back period (n >= 1)
      *         dataValues, the values to use for the calculation of the EMA
+     *  Output: n-day Exponential Moving Average of the given data for every trading day
      */
     List<Double> calculateEMA( int n, List<Double> dataValues ) {
     	double currentMultiplier = 2.0 / (1.0 + n);
@@ -174,27 +176,33 @@ public class FinancialEvaluator extends IndividualEvaluator
     /*
      * Calculate the Relative Strength Index (RSI) of the stock for the specified number of days
      * Input: currDay, the current data for which we are determining the buy/sell signal
-     *        n, the number of days for look-back period
+     *        n, the number of days for look-back period (n >= 1)
      */
     double calculateRSI( int currDay, int n )
     {
-    	double upDays = 0;
-    	double downDays = 0;
+    	double ups = 0; double downs = 0;
+    	double gain = 0; 
 
     	for ( int observeDay = currDay; observeDay > currDay - n; observeDay-- ) {
-    		if (observeDay < 0) {
+    		if (observeDay <= 0)
     			break;
-    		} else if (stockData_closes.get(observeDay) < stockData_opens.get(observeDay)) {
-    			downDays++;
-    		} else if (stockData_closes.get(observeDay) > stockData_opens.get(observeDay)){
-    			upDays++;
+    		else
+    			gain = stockData_closes.get(observeDay) - stockData_closes.get(observeDay - 1);
+    		
+    		if (gain > 0) // closing price of observeDay is higher than that of the previous day
+    		{
+    			ups += gain;
+    		}
+    		else if (gain < 0) // closing price of observeDay is lower than that of the previous day
+    		{
+    			downs += Math.abs(gain);
     		}
     		// Do nothing if there was no change during the day
     	}
     	double rsi = 100; // Set to maximum initially
-    	// If downDays = 0, then RS is infinite, meaning that RSI = 100
-    	if (downDays != 0) {
-    		double rs = upDays/downDays;
+    	// If downs = 0, then RS is infinite, meaning that RSI = 100
+    	if (downs != 0) {
+    		double rs = ups/downs;
     		rsi = 100 - (100.0 / (1.0 + rs));
     	}
     	
@@ -236,7 +244,7 @@ public class FinancialEvaluator extends IndividualEvaluator
     	/* Perform all evaluator calculations for the current day and set all 4 buy/sell signals */
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
 
-    		/* DEMAC */
+    		/* DEMAC (Double EMA Crossovers) */
     		
     		// Calculate the EMA values based on the closing stock price data for the current day
     		// EMAs are calculated inline to save storage space (no need to save every value)
@@ -248,7 +256,7 @@ public class FinancialEvaluator extends IndividualEvaluator
     		{
     			ema_short_demac = short_multiplier * stockData_closes.get(currentDay) + (1.0 - short_multiplier) * previousEMA_short;
     		}
-			previousEMA_short = ema_short_demac;
+			
     		if (long_amt_days > currentDay)
     		{
     			ema_long_demac = calculateSMA(currentDay, long_amt_days, stockData_closes);
@@ -257,18 +265,20 @@ public class FinancialEvaluator extends IndividualEvaluator
     		{
     			ema_long_demac = long_multiplier * stockData_closes.get(currentDay) + (1.0 - long_multiplier) * previousEMA_long;
     		}
-			previousEMA_long = ema_long_demac;
     		
     		// Determine the buy/sell signal based on the two calculated values
-    		if (ema_short_demac > ema_long_demac) {
+    		if ((ema_short_demac > ema_long_demac) && (previousEMA_short <= previousEMA_long)) {
     			signals[currentDay][0] = 1;
-    		} else if (ema_short_demac < ema_long_demac){
+    		} else if ((ema_short_demac < ema_long_demac) && (previousEMA_short >= previousEMA_long)) {
     			signals[currentDay][0] = -1;
     		} else {
     			signals[currentDay][0] = 0;
     		}
+    		
+    		previousEMA_short = ema_short_demac;
+    		previousEMA_long = ema_long_demac;
 
-    		/* MACD */
+    		/* MACD (Moving Average Convergence/Divergence) */
     		if (currentDay != 0)
     		{
     			if (((macd_line.get(currentDay) > signal_line.get(currentDay)) && (macd_line.get(currentDay - 1) <= signal_line.get(currentDay - 1))) || 
@@ -288,7 +298,7 @@ public class FinancialEvaluator extends IndividualEvaluator
 				signals[currentDay][1] = 0;
     		
 
-    		/* RSI */
+    		/* RSI (Relative Strength Index) */
     		double rsi = calculateRSI(currentDay, (int) Math.round(x[5])); 
     		if (rsi < x[6]) {
     			signals[currentDay][2] = 1; // Over-sold condition: buy
@@ -301,9 +311,9 @@ public class FinancialEvaluator extends IndividualEvaluator
     		/* MARSI */
     		int sma_days = (int) Math.round(x[11]);
     		int observeDay; double rsi_sum = 0;
-    		for (observeDay = currentDay; observeDay > currentDay - sma_days; observeDay++)
+    		for (observeDay = currentDay; observeDay > currentDay - sma_days; observeDay--)
     		{
-    			if (observeDay < 0)
+    			if (observeDay <= 0)
     				break;
     			rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[9]));
     		}
@@ -378,7 +388,12 @@ public class FinancialEvaluator extends IndividualEvaluator
     	double annual_return = (pow(base, 1.0/exponent_denom)-1) * 100;
     	
     	/* Sharpe Ratio */
-    	double sharpe_ratio = average/stddev;
+    	double sharpe_ratio = 0;
+    	if (returns.size() > 4)
+    	{
+    		sharpe_ratio = average/stddev;
+    	}
+    	// else: sharpe_ratio remains equal to 0
     	
     	double[] objs = {(-1) * annual_return, (-1) * sharpe_ratio};
 		return objs;
