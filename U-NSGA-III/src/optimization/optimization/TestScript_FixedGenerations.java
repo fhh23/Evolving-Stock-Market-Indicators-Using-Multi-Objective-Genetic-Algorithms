@@ -15,30 +15,7 @@ import emo.OptimizationProblem;
 import emo.VirtualIndividual;
 import engines.AbstractGeneticEngine;
 import engines.UnifiedNSGA3Engine;
-import evaluators.BNHEvaluator;
-import evaluators.CarSideImpactEvaluator;
-import evaluators.FinancialEvaluator;
-import evaluators.GeneralC3DTLZ1Evaluator;
-import evaluators.GeneralC3DTLZ4Evaluator;
-import evaluators.GeneralDTLZ1Evaluator;
-import evaluators.GeneralDTLZ2Evaluator;
-import evaluators.GeneralDTLZ4Evaluator;
-import evaluators.OSYEvaluator;
-import evaluators.PressureVesselEvaluator;
-import evaluators.SRNEvaluator;
-import evaluators.ShipModelEvaluator;
-import evaluators.SingleObjective_Ellipsoidal_Evaluator;
-import evaluators.SingleObjective_G01_Evaluator;
-import evaluators.SingleObjective_Rosenbrock_Evaluator;
-import evaluators.SingleObjective_Schwefel_Evaluator;
-import evaluators.TNKEvaluator;
-import evaluators.WaterEvaluator;
-import evaluators.WeldedBeamEvaluator;
-import evaluators.ZDT1Evaluator;
-import evaluators.ZDT2Evaluator;
-import evaluators.ZDT3Evaluator;
-import evaluators.ZDT4Evaluator;
-import evaluators.ZDT6Evaluator;
+import evaluators.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +40,7 @@ public class TestScript_FixedGenerations extends TestScript {
     // Number of auto generated Pareto points (used to calculate GD and/or IGD)
     static int paretoOptimalFrontPointsCount = 10000;
     // Number of runs performed to take averages
-    public static int runsCount = 1;
+    public static int runsCount = 1; // TODO: change the value to get multiple runs of the algorithm
     public static int currentRunIndex = 0;
 
     /**
@@ -87,11 +64,11 @@ public class TestScript_FixedGenerations extends TestScript {
             // *                         MODIFY START                         *
             // ********** MODIFY ********** MODIFY ********** MODIFY **********
             // Read Problem
-            URL url = UnifiedNSGA3Engine.class.getResource("../samples/financial.xml");
+            URL url = UnifiedNSGA3Engine.class.getResource("../samples/rsi_financial.xml");
             in = url.openStream();
             OptimizationProblem optimizationProblem = StaXParser.readProblem(in);
             // Create Evaluator
-            IndividualEvaluator individualEvaluator = new FinancialEvaluator();
+            IndividualEvaluator individualEvaluator = new SingleIndicator_FinancialEvaluator();
             // Uncomment the following line only if you need the scaled version of the problem (Scaling is supported only for DTLZ1 and DTLZ2 until now(30Oct.2014))
             //((GeneralDTLZ1Evaluator)individualEvaluator).setScaled(true);
             // Create random seed
@@ -127,11 +104,11 @@ public class TestScript_FixedGenerations extends TestScript {
             int etaMStart = 20;
             int etaMEnd = 20;
             // Population Parameter
-            int popSizeStart = 100;
-            int popSizeEnd = 100;
+            int popSizeStart = 200;
+            int popSizeEnd = 200;
             // Generations Parameter
-            int genCountStart = 50; // TODO: change this back to 200 after debugging is complete
-            int genCountEnd = 50; // TODO: change this back to 200 after debugging is complete
+            int genCountStart = 200;
+            int genCountEnd = 200;
             // Parameters Steps
             int etaCStep = 10;
             int etaMStep = 10;

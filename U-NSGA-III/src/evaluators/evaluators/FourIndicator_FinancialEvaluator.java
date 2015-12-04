@@ -318,7 +318,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     		{
     			if (observeDay <= 0)
     				break;
-    			rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[9]));
+    			rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[8]));
     		}
     		double marsi = rsi_sum / ((double) (currentDay - observeDay));
     		if (marsi < x[9]) {

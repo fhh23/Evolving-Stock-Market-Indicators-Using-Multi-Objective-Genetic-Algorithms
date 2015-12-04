@@ -40,12 +40,16 @@ import static java.lang.Math.sqrt;
 */
 public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator 
 {
+	// Indicates which indicator is being tested by this run
+	// 0 = DEMAC, 1 = MACD, 2 = RSI, 3 = MARSI
+	public static final int indicatorSignalIndex = 2; 
+	
 	private List<Double> stockData_highs;
 	private List<Double> stockData_lows;
 	private List<Double> stockData_opens;
 	private List<Double> stockData_closes;
 	private List<Double> returns;
-	private int[][] signals;
+	private int[] signals;
 	
 	public SingleIndicator_FinancialEvaluator() throws IOException {
 		// Initialize the ArrayLists to contain the stock data
@@ -74,7 +78,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 				stockData_closes.add(Double.parseDouble(record.get(4)));
 			}
 		}
-		signals = new int[stockData_closes.size()][4];
+		signals = new int[stockData_closes.size()];
 	}
 	
 	@Override
@@ -110,14 +114,26 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
         // Announce that objective function values are valid
         individual.validObjectiveFunctionsValues = true;
         // Update constraint violations if constraints exist
+        if ( (indicatorSignalIndex == 2) || (indicatorSignalIndex == 3) )
+        {
+        	// No non-boundary constraints for RSI or MARSI
+        	problem.constraints = null;
+        }
         if (problem.constraints != null) {
-            // Three non-boundary constraints   
-            double[] g = new double[5];
-            g[0] = x[1] - x[0]; // EMA_long >= EMA =_short (DMAC)
-            g[1] = x[3] - x[2]; // EMA_long >= EMA =_short (MACD)
-            g[2] = x[2] - x[4]; // Signal <= EMA_short (MACD)
-            g[3] = x[12] + x[13] + x[14] + x[15] - 1.0; // Sum of the indicator weights >= 1
-            g[4] = 1.0 - x[12] - x[13] - x[14] - x[15]; // 1 >= Sum of the indicator weights
+        	double[] g;
+            if ( indicatorSignalIndex == 0 )
+            {
+            	g = new double[1];
+            	g[0] = x[1] - x[0]; // EMA_long >= EMA =_short
+            }
+            else if ( indicatorSignalIndex == 1 )
+            {
+            	g = new double[2];
+            	g[1] = x[3] - x[2]; // EMA_long >= EMA =_short
+            	g[2] = x[2] - x[4]; // Signal <= EMA_short
+            }
+            else
+            	g = new double[0];
             // Set constraints violations
             for (int i = 0; i < g.length; i++) {
                 if (g[i] < 0) {
@@ -194,6 +210,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     		if (observeDay <= 0)
     			break;
     		else
+    			// Calculates gain by subtracting the closing price of the current gain and the closing price of the previous day
     			gain = stockData_closes.get(observeDay) - stockData_closes.get(observeDay - 1);
     		
     		if (gain > 0) // closing price of observeDay is higher than that of the previous day
@@ -228,109 +245,143 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     	 * based on the value of currentDay and that only need to be done once */
     	
     	/* DEMAC (initializations only) */
-    	double previousEMA_short = 0; double previousEMA_long = 0;
-    	double ema_short_demac; double ema_long_demac;
-		int short_amt_days = (int) Math.round(x[0]);
-		double short_multiplier = 2.0 / (1.0 + short_amt_days);
-		int long_amt_days = (int) Math.round(x[1]);
-		double long_multiplier = 2.0 / (1.0 + long_amt_days);
+		double previousEMA_short = 0; double previousEMA_long = 0;
+		double ema_short_demac; double ema_long_demac;
+		int short_amt_days = 0; double short_multiplier = 0;
+		int long_amt_days = 0; double long_multiplier = 0;
+    	if ( indicatorSignalIndex == 0 )
+    	{
+    		previousEMA_short = 0; previousEMA_long = 0;
+    		short_amt_days = (int) Math.round(x[0]);
+    		short_multiplier = 2.0 / (1.0 + short_amt_days);
+    		long_amt_days = (int) Math.round(x[1]);
+    		long_multiplier = 2.0 / (1.0 + long_amt_days);
+    	}
     	
     	/* MACD */
-    	List<Double> ema_short_macd = calculateEMA((int) Math.round(x[2]), stockData_closes);
-    	List<Double> ema_long_macd = calculateEMA((int) Math.round(x[3]), stockData_closes);
-    	List<Double> macd_line = new ArrayList<Double>();
-    	if (ema_short_macd.size() == ema_long_macd.size()) // Error Checking: this should never be false
+    	List<Double> ema_short_macd = null;
+		List<Double> ema_long_macd = null;
+		List<Double> macd_line = null;
+		List<Double> signal_line = null;
+    	if ( indicatorSignalIndex == 1 )
     	{
-    		for (int idx = 0; idx < ema_short_macd.size(); idx ++)
+    		ema_short_macd = calculateEMA((int) Math.round(x[0]), stockData_closes);
+    		ema_long_macd = calculateEMA((int) Math.round(x[1]), stockData_closes);
+    		macd_line = new ArrayList<Double>();
+    		if (ema_short_macd.size() == ema_long_macd.size()) // Error Checking: this should never be false
     		{
-    			macd_line.add(ema_short_macd.get(idx) - ema_long_macd.get(idx));
+    			for (int idx = 0; idx < ema_short_macd.size(); idx ++)
+    			{
+    				macd_line.add(ema_short_macd.get(idx) - ema_long_macd.get(idx));
+    			}
     		}
+    		signal_line = calculateEMA((int) Math.round(x[2]), macd_line);
     	}
-    	List<Double> signal_line = calculateEMA((int) Math.round(x[4]), macd_line);
     	
     	/* Perform all evaluator calculations for the current day and set all 4 buy/sell signals */
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
 
     		/* DEMAC (Double EMA Crossovers) */
-    		
-    		// Calculate the EMA values based on the closing stock price data for the current day
-    		// EMAs are calculated inline to save storage space (no need to save every value)
-    		if (short_amt_days > currentDay)
+    		if ( indicatorSignalIndex == 0 )
     		{
-    			ema_short_demac = calculateSMA(currentDay, short_amt_days, stockData_closes);
+    			// Calculate the EMA values based on the closing stock price data for the current day
+    			// EMAs are calculated inline to save storage space (no need to save every value)
+    			if (short_amt_days > currentDay)
+    			{
+    				ema_short_demac = calculateSMA(currentDay, short_amt_days, stockData_closes);
+    			}
+    			else // currentDay >= short_amt_days
+    			{
+    				ema_short_demac = short_multiplier * stockData_closes.get(currentDay) + (1.0 - short_multiplier) * previousEMA_short;
+    			}
+
+    			if (long_amt_days > currentDay)
+    			{
+    				ema_long_demac = calculateSMA(currentDay, long_amt_days, stockData_closes);
+    			}
+    			else // currentDay >= long_amt_days
+    			{
+    				ema_long_demac = long_multiplier * stockData_closes.get(currentDay) + (1.0 - long_multiplier) * previousEMA_long;
+    			}
+
+    			// Determine the buy/sell signal based on the two calculated values
+    			if ((ema_short_demac > ema_long_demac) && (previousEMA_short <= previousEMA_long)) {
+    				signals[currentDay] = 1;
+    			} else if ((ema_short_demac < ema_long_demac) && (previousEMA_short >= previousEMA_long)) {
+    				signals[currentDay] = -1;
+    			} else {
+    				signals[currentDay] = 0;
+    			}
+
+    			previousEMA_short = ema_short_demac;
+    			previousEMA_long = ema_long_demac;
     		}
-    		else // currentDay >= short_amt_days
-    		{
-    			ema_short_demac = short_multiplier * stockData_closes.get(currentDay) + (1.0 - short_multiplier) * previousEMA_short;
-    		}
-			
-    		if (long_amt_days > currentDay)
-    		{
-    			ema_long_demac = calculateSMA(currentDay, long_amt_days, stockData_closes);
-    		}
-    		else // currentDay >= long_amt_days
-    		{
-    			ema_long_demac = long_multiplier * stockData_closes.get(currentDay) + (1.0 - long_multiplier) * previousEMA_long;
-    		}
-    		
-    		// Determine the buy/sell signal based on the two calculated values
-    		if ((ema_short_demac > ema_long_demac) && (previousEMA_short <= previousEMA_long)) {
-    			signals[currentDay][0] = 1;
-    		} else if ((ema_short_demac < ema_long_demac) && (previousEMA_short >= previousEMA_long)) {
-    			signals[currentDay][0] = -1;
-    		} else {
-    			signals[currentDay][0] = 0;
-    		}
-    		
-    		previousEMA_short = ema_short_demac;
-    		previousEMA_long = ema_long_demac;
 
     		/* MACD (Moving Average Convergence/Divergence) */
-    		if (currentDay != 0)
+    		else if ( indicatorSignalIndex == 1)
     		{
-    			if (((macd_line.get(currentDay) > signal_line.get(currentDay)) && (macd_line.get(currentDay - 1) <= signal_line.get(currentDay - 1))) || 
-    					((macd_line.get(currentDay) > 0) && (macd_line.get(currentDay - 1) <= 0)))
+    			if (currentDay != 0)
     			{
-    				signals[currentDay][1] = 1;
-    			}
-    			else if (((macd_line.get(currentDay) < signal_line.get(currentDay)) && (macd_line.get(currentDay - 1) >= signal_line.get(currentDay - 1))) || 
-    					((macd_line.get(currentDay) < 0) && (macd_line.get(currentDay - 1) >= 0)))
-    			{
-    				signals[currentDay][1] = -1;
+    				if (((macd_line.get(currentDay) > signal_line.get(currentDay)) && (macd_line.get(currentDay - 1) <= signal_line.get(currentDay - 1))) || 
+    						((macd_line.get(currentDay) > 0) && (macd_line.get(currentDay - 1) <= 0)))
+    				{
+    					signals[currentDay] = 1;
+    				}
+    				else if (((macd_line.get(currentDay) < signal_line.get(currentDay)) && (macd_line.get(currentDay - 1) >= signal_line.get(currentDay - 1))) || 
+    						((macd_line.get(currentDay) < 0) && (macd_line.get(currentDay - 1) >= 0)))
+    				{
+    					signals[currentDay] = -1;
+    				}
+    				else
+    					signals[currentDay] = 0;
     			}
     			else
-    				signals[currentDay][1] = 0;
+    				signals[currentDay] = 0;
     		}
-    		else
-				signals[currentDay][1] = 0;
     		
 
     		/* RSI (Relative Strength Index) */
-    		double rsi = calculateRSI(currentDay, (int) Math.round(x[5])); 
-    		if (rsi < x[6]) {
-    			signals[currentDay][2] = 1; // Over-sold condition: buy
-    		} else if (rsi > x[7]) {
-    			signals[currentDay][2] = -1; // Over-bought condition: sell
-    		} else {
-    			signals[currentDay][2] = 0;
+    		else if ( indicatorSignalIndex == 2 )
+    		{
+    			if ( currentDay != 0 )
+    			{
+    				double rsi = calculateRSI(currentDay, (int) Math.round(x[0])); 
+    				if (rsi < x[1]) {
+    					signals[currentDay] = 1; // Over-sold condition: buy
+    				} else if (rsi > x[2]) {
+    					signals[currentDay] = -1; // Over-bought condition: sell
+    				} else {
+    					signals[currentDay] = 0;
+    				}
+    			}
+    			else
+					signals[currentDay] = 0;
     		}
 
     		/* MARSI */
-    		int sma_days = (int) Math.round(x[11]);
-    		int observeDay; double rsi_sum = 0;
-    		for (observeDay = currentDay; observeDay > currentDay - sma_days; observeDay--)
+    		else if ( indicatorSignalIndex == 3 )
     		{
-    			if (observeDay <= 0)
-    				break;
-    			rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[9]));
-    		}
-    		double marsi = rsi_sum / ((double) (currentDay - observeDay));
-    		if (marsi < x[9]) {
-    			signals[currentDay][3] = 1; // Oversold condition: buy
-    		} else if (marsi > x[10]) {
-    			signals[currentDay][3] = -1; // Overbought condition: sell
-    		} else {
-    			signals[currentDay][3] = 0;
+    			if ( currentDay != 0 )
+    			{
+    				int sma_days = (int) Math.round(x[3]);
+    				int observeDay; double rsi_sum = 0;
+    				for (observeDay = currentDay; observeDay > currentDay - sma_days; observeDay--)
+    				{
+    					if (observeDay <= 0)
+    						break;
+    					rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[0]));
+    				}
+    				double marsi = rsi_sum / ((double) (currentDay - observeDay));
+    				if (marsi < x[1]) {
+    					signals[currentDay] = 1; // Oversold condition: buy
+    				} else if (marsi > x[2]) {
+    					signals[currentDay] = -1; // Overbought condition: sell
+    				} else {
+    					signals[currentDay] = 0;
+    				}
+    			}
+    			else
+					signals[currentDay] = 0;
     		}
 
     	}
@@ -352,9 +403,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     	
     	// Find all returns using indicator voting to determine whether to buy or sell
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
-    		// double determinedSignal = (x[12] * signals[currentDay][0] + x[13] * signals[currentDay][1] + x[14] * signals[currentDay][2] + x[15] * signals[currentDay][3]) / 4.0;
-    		// if ((int) Math.round(determinedSignal) == 1) {
-    		if(signals[currentDay][2] == 1) {
+    		if(signals[currentDay] == 1) {
     			if ((stockData_opens.get(currentDay) < wallet) && (buy == 0)) {
     				buyvalue = stockData_opens.get(currentDay);
     				wallet -= buyvalue;
@@ -362,8 +411,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     				buy = 1;
     			}
     		}
-    		// else if ((int) Math.round(determinedSignal) == -1) {
-    		else if (signals[currentDay][2] == -1) {
+    		else if (signals[currentDay] == -1) {
     			if (sell == 0) {
     				sellvalue = stockData_opens.get(currentDay);
     				wallet += sellvalue;
