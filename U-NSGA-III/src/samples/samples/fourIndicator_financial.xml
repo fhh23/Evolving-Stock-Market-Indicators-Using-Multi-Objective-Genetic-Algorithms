@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<!-- id can be anything. type is either "single-objective", "multi-objective"
+or "many-objective" -->
+<optimization-problem id="fourIndicator_financial" type="mutli-objective">
+    <!-- a seed has to be in the range ]0,1[ -->
+    <seed>
+        0.5
+    </seed>
+    <!-- All the variables along with their types (either real or binary) -->
+    <variables>
+		<variable type="real" min="1" max="100">x0</variable> <!-- EMA_short for DEMAC -->
+		<variable type="real" min="1" max="200">x1</variable> <!-- EMA_long for DEMAC -->
+		<variable type="real" min="3" max="100">x2</variable> <!-- EMA_short for MACD -->
+		<variable type="real" min="3" max="100">x3</variable> <!-- EMA_long for MACD -->
+		<variable type="real" min="1" max="100">x4</variable> <!-- Signal for MACD -->
+		<variable type="real" min="3" max="100">x5</variable> <!-- N_RSI for RSI -->
+		<variable type="real" min="10" max="40">x6</variable> <!-- Lower Boundary for RSI -->
+		<variable type="real" min="60" max="90">x7</variable> <!-- Upper Boundary for RSI -->
+		<variable type="real" min="3" max="100">x8</variable> <!-- N_RSI for MARSI -->
+		<variable type="real" min="10" max="40">x9</variable> <!-- Lower Boundary for MARSI -->
+		<variable type="real" min="60" max="90">x10</variable>  <!-- Upper Boundary for MARSI -->
+		<variable type="real" min="1" max="100">x11</variable>  <!-- N_SMA for MARSI -->
+		<variable type="real" min="0" max="1">x12</variable> <!-- DEMAC Voting Wegiht -->
+		<variable type="real" min="0" max="1">x13</variable> <!-- MACD Voting Weight -->
+		<variable type="real" min="0" max="1">x14</variable> <!-- RSI Voting Weight -->
+		<variable type="real" min="0" max="1">x15</variable> <!-- MARSI Voting Weight -->
+    </variables>
+    <!-- Objective functions. Only the variables defined above can be used in 
+    any of these function -->
+	<!-- Objective functions to be set by the Java Evaluator -->
+    <objectives>
+        <objective type="min">0</objective>
+        <objective type="min">0</objective>
+    </objectives>
+    <!-- structured reference points -->
+    <structured-reference-points steps="199" adaptive="false"/>
+    <!-- population size -->
+    <population-size>
+        200
+    </population-size>
+    <!-- number of generations -->
+    <generations-count>
+        200
+    </generations-count>
+    <!-- real crossover & mutation probabilities -->
+    <real-crossover-probability>0.8</real-crossover-probability>
+    <real-mutation-probability>0.05</real-mutation-probability>
+    <!-- real crossover & mutation distribution indices -->
+    <real-crossover-distribution-index>0</real-crossover-distribution-index>
+    <real-mutation-distribution-index>0</real-mutation-distribution-index>
+    <!-- binary crossover and mutation probabilities (the following information
+    should be removed since we have no binary variables but the code will 
+    generate exceptions if the following tags are removed. This should be
+    fixed) -->
+    <binary-crossover-probability>0.75</binary-crossover-probability>
+    <binary-mutation-probability>0.02</binary-mutation-probability>
+</optimization-problem>

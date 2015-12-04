@@ -32,10 +32,10 @@ import static java.lang.Math.sqrt;
 * File Description: Evaluator for performance testing of individual
 *     technical indicators run through the GA
 * Associated XML files:
-* 	  (1)
-*     (2)
-*     (3)
-*     (4)
+* 	  (1) demac_financial.xml
+*     (2) macd_financial.xml
+*     (3) rsi_financial.xml
+*     (4) marsi_financial.xml
 * 
 */
 public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator 
