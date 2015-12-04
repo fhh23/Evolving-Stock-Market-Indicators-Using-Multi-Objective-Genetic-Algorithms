@@ -29,9 +29,16 @@ import static java.lang.Math.sqrt;
 *
 * Farhan Hormasji, Bonnie Reiff
 * CSE 848: Survey of Evolutionary Computing
+* File Description: Evaluator for performance testing of individual
+*     technical indicators run through the GA
+* Associated XML files:
+* 	  (1)
+*     (2)
+*     (3)
+*     (4)
 * 
 */
-public class FinancialEvaluator extends IndividualEvaluator 
+public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator 
 {
 	private List<Double> stockData_highs;
 	private List<Double> stockData_lows;
@@ -40,7 +47,7 @@ public class FinancialEvaluator extends IndividualEvaluator
 	private List<Double> returns;
 	private int[][] signals;
 	
-	public FinancialEvaluator() throws IOException {
+	public SingleIndicator_FinancialEvaluator() throws IOException {
 		// Initialize the ArrayLists to contain the stock data
 		stockData_highs = new ArrayList<Double>();
 		stockData_lows = new ArrayList<Double>();
@@ -345,8 +352,9 @@ public class FinancialEvaluator extends IndividualEvaluator
     	
     	// Find all returns using indicator voting to determine whether to buy or sell
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
-    		double determinedSignal = (x[12] * signals[currentDay][0] + x[13] * signals[currentDay][1] + x[14] * signals[currentDay][2] + x[15] * signals[currentDay][3]) / 4.0;
-    		if ((int) Math.round(determinedSignal) == 1) {
+    		// double determinedSignal = (x[12] * signals[currentDay][0] + x[13] * signals[currentDay][1] + x[14] * signals[currentDay][2] + x[15] * signals[currentDay][3]) / 4.0;
+    		// if ((int) Math.round(determinedSignal) == 1) {
+    		if(signals[currentDay][2] == 1) {
     			if ((stockData_opens.get(currentDay) < wallet) && (buy == 0)) {
     				buyvalue = stockData_opens.get(currentDay);
     				wallet -= buyvalue;
@@ -354,7 +362,8 @@ public class FinancialEvaluator extends IndividualEvaluator
     				buy = 1;
     			}
     		}
-    		else if ((int) Math.round(determinedSignal) == -1) { 	
+    		// else if ((int) Math.round(determinedSignal) == -1) {
+    		else if (signals[currentDay][2] == -1) {
     			if (sell == 0) {
     				sellvalue = stockData_opens.get(currentDay);
     				wallet += sellvalue;
