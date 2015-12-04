@@ -49,7 +49,7 @@ public abstract class AbstractGeneticEngine {
 
     public final static boolean DUMP_ALL_GENERATIONS_DECISION_SPACE = true;
     public final static boolean DUMP_ALL_GENERATIONS_OBJECTIVE_SPACE = true;
-    public final static boolean DUMP_ALL_GENERATIONS_MATLAB_SCRIPTS = true;
+    public final static boolean DUMP_ALL_GENERATIONS_MATLAB_SCRIPTS = false;
     // If DUMP_ALL_GENERATIONS_NORMALIZED_MATLAB_SCRIPTS is true if and only if
     // DUMP_ALL_GENERATIONS_OBJECTIVE_SPACE is also true,
     // otherwise DUMP_ALL_GENERATIONS_NORMALIZED_MATLAB_SCRIPTS value will be
@@ -942,9 +942,9 @@ public abstract class AbstractGeneticEngine {
                         + String.format("gen_%04d_obj_matlab.m", generationsCounter);
                 // Dump the Matlab plotting script
                 if (optimizationProblem.objectives.length == 2) {
-                    //InputOutput.dumpMatlabPlottinScriptFor2dPoints(matlabScriptFilePath, evaluator, OptimizationUtilities.getNonDominatedIndividuals(individuals, epsilon));
+                    InputOutput.dumpMatlabPlottinScriptFor2dPoints(matlabScriptFilePath, evaluator, OptimizationUtilities.getNonDominatedIndividuals(individuals, epsilon));
                 } else if(optimizationProblem.objectives.length == 3) {
-                    //InputOutput.dumpMatlabPlottinScriptFor3dPoints(matlabScriptFilePath, evaluator, OptimizationUtilities.getNonDominatedIndividuals(individuals, epsilon));
+                    InputOutput.dumpMatlabPlottinScriptFor3dPoints(matlabScriptFilePath, evaluator, OptimizationUtilities.getNonDominatedIndividuals(individuals, epsilon));
                 }
             }
             // </editor-fold>

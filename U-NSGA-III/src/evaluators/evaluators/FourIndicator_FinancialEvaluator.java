@@ -31,11 +31,7 @@ import static java.lang.Math.sqrt;
 * CSE 848: Survey of Evolutionary Computing
 * File Description: Evaluator for the full stock market predictor system with
 *     four technical indicators (DEMAC, MACD, RSI, MARSI)
-* Associated XML files:
-* 	  (1)
-*     (2)
-*     (3)
-*     (4)
+* Associated XML files: 
 * 
 */
 public class FourIndicator_FinancialEvaluator extends IndividualEvaluator 
