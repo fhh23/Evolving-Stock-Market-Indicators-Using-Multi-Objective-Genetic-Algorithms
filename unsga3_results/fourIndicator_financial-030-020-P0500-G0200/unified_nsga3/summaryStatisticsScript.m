@@ -11,25 +11,23 @@ clar all; % Clear the variable workspace
 
 %% Summary Statistics to be Performed %%
 % Modify here to turn statistics/graphs on or off
-paretoFrontFinalPopulationGraphAllRuns    = 0;
-paretoFrontFinalPopulationGraphSingleRun  = 0;
-objValueSummaryStatisticsAllRuns          = 0;
-objValueSummaryStatisticsSingleRun        = 0;
 avgFitnessPerGenetationGraphs             = 1;
-finalPopulationObjectiveStatsAllRuns      = 0;
-finalPopulationObjectiveStatsSingleRun    = 0;
-parameterSummaryStatisticsAllRuns         = 0;
+paretoFrontFinalPopulationGraphAllRuns    = 1;
+paretoFrontFinalPopulationGraphSingleRun  = 0;
+objValueSummaryStatisticsAllRuns          = 1;
+objValueSummaryStatisticsSingleRun        = 0;
+parameterSummaryStatisticsAllRuns         = 1;
 parameterSummaryStatisticsSingleRun       = 0;
 
 if ( avgFitnessPerGenetationGraphs || ...
      paretoFrontFinalPopulationGraphAllRuns || ...
      objValueSummaryStatisticsAllRuns || ...
-     finalPopulationObjectiveStatsAllRuns || ...
      parameterSummaryStatisticsAllRuns )
  
     %% Put all run data into a single file
     objectiveValuesPerGenerationData = [];
     finalPopulationObjectiveValues = [];
+    finalPopulationParameterValues = [];
     numRuns = 20;
     for run = 1:numRuns
         % Construct the folder name
@@ -65,11 +63,17 @@ if ( avgFitnessPerGenetationGraphs || ...
                 end
             end
         end
-        if ( paretoFrontFinalPopulationGraphAllRuns )
-            if (run == 1)
-                fileData = importData('gen_0199_odj.dat');
-                finalPopulationObjectiveValues = [finalPopulationObjectiveValues; fileData];
-            end
+        if ( paretoFrontFinalPopulationGraphAllRuns || objValueSummaryStatisticsAllRuns )
+            % Note: final population value hardcoded. change this for
+            % different runs!
+            fileData = importData('gen_0199_odj.dat');
+            finalPopulationObjectiveValues = [finalPopulationObjectiveValues; fileData];
+        end
+        if ( parameterSummaryStatisticsAllRuns )
+            % Note: final population value hardcoded. change this for
+            % different runs!
+            fileData = importData('gen_0199_var.dat');
+            finalPopulationParameterValues = [finalPopulationParameterValues; fileData];
         end
         
         cd(callingFolder);
@@ -99,11 +103,39 @@ if ( avgFitnessPerGenetationGraphs || ...
         xlabel('Objective 1 Value', 'FontSize', 12);
         ylabel('Objective 2 Value', 'FontSize', 12);
     end
+    
+    if ( objValueSummaryStatisticsAllRuns )
+        finalPopulationObjectiveValues = finalPopulationObjectiveValues .* (-1);
+        fprintf('[ Objective Value Summary Statistics Over All Runs ]\n');
+        meanValues = mean(finalPopulationObjectiveValues);
+        minValues = min(finalPopulationObjectiveValues);
+        maxValues = max(finalPopulationObjectiveValues);
+        fprintf('\tObjective 1: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', 100 * meanValues(1), 100 * minValues(1), 100 * maxValues(1)); 
+        fprintf('\tObjective 2: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(2), minValues(2), maxValues(2));
+    end
+    
+    if ( parameterSummaryStatisticsAllRuns )
+        fprintf('[ Parameter Value Summary Statistics Over All Runs ]\n');
+        meanValues = mean(finalPopulationParameterValues);
+        minValues = min(finalPopulationParameterValues);
+        maxValues = max(finalPopulationParameterValues);
+        fprintf('\tDEMAC Short Lookback: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(1), minValues(1), maxValues(1)); 
+        fprintf('\tDEMAC Long Lookback : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(2), minValues(2), maxValues(2));
+        fprintf('\tMACD Short Lookback : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(3), minValues(3), maxValues(3));
+        fprintf('\tMACD Long Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(4), minValues(4), maxValues(4));
+        fprintf('\tMACD Signal Lookback: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(5), minValues(5), maxValues(5));
+        fprintf('\tRSI Lookback        : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(6), minValues(6), maxValues(6));
+        fprintf('\tRSI Lower Boundary  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(7), minValues(7), maxValues(7));
+        fprintf('\tRSI Upper Boundary  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(8), minValues(8), maxValues(8));
+        fprintf('\tMARSI RSI Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(9), minValues(9), maxValues(9));
+        fprintf('\tMARSI Lower Boundary: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(10), minValues(10), maxValues(10));
+        fprintf('\tMARSI Upper Boundary: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(11), minValues(11), maxValues(11));
+        fprintf('\tMARSI SMA Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(11), minValues(12), maxValues(12));
+    end
 end
 
 if ( paretoFrontFinalPopulationGraphSingleRun || ...
      objValueSummaryStatisticsSingleRun || ...
-     finalPopulationObjectiveStatsSingleRun || ...
      parameterSummaryStatisticsSingleRun )
 end
 
