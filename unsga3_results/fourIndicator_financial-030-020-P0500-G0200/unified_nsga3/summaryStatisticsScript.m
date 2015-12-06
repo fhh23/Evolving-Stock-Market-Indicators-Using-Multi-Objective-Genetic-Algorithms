@@ -39,15 +39,15 @@ if ( avgFitnessPerGenetationGraphs || ...
             folderPrefix = 'generation_wise_run';
         end
         folderName = strcat(folderPrefix, int2str(run));
-        fprtinf('Using folder %s...\n', folderName); % DEBUG. REMOVE!
+        fprtinf('Entering folder %s...\n', folderName); % DEBUG. REMOVE!
         
         callingFolder = cd(folderName);
-     
+        
         % Get a list of all objective files in the folder
         objFiles = dir('*_obj.dat');
         objFileFilenames = {objFiles.name};
      
-        if ( avgFitnessPerGenetationGraphs )
+        if ( avgFitnessPerGenetationGraphs )            
             for gen = 1:length(objFileFilenames)
                 fileData = importdata(objFileFilenames{idx});
                 if (run == 1)
@@ -64,13 +64,13 @@ if ( avgFitnessPerGenetationGraphs || ...
             end
         end
         if ( paretoFrontFinalPopulationGraphAllRuns || objValueSummaryStatisticsAllRuns )
-            % Note: final population value hardcoded. change this for
+            % Note: final generation number hardcoded. change this for
             % different runs!
-            fileData = importData('gen_0199_odj.dat');
+            fileData = importData('gen_0199_obj.dat');
             finalPopulationObjectiveValues = [finalPopulationObjectiveValues; fileData];
         end
         if ( parameterSummaryStatisticsAllRuns )
-            % Note: final population value hardcoded. change this for
+            % Note: final generation number hardcoded. change this for
             % different runs!
             fileData = importData('gen_0199_var.dat');
             finalPopulationParameterValues = [finalPopulationParameterValues; fileData];
@@ -82,13 +82,13 @@ if ( avgFitnessPerGenetationGraphs || ...
     if (avgFitnessPerGenerationGraphs)
         generations = [1:size(objectiveValuesPerGenerationData, 2)];
         figure;
-        yvalues = ((-1) * objectiveValuesPerGenerationData(:,2)) / objectiveValuesPerGenerationData(:,1);
+        yvalues = ((-1) * objectiveValuesPerGenerationData(:, 2)) / objectiveValuesPerGenerationData(:, 1);
         plot(generations, yvalues);
         title('Average Objective 1 Value Per Generation', 'FontSize', 12);
         xlabel('Generation Number', 'FontSize', 12);
         ylabel('Objective 1 Value', 'FontSize', 12);
         figure;
-        yvalues = ((-1) * objectiveValuesPerGenerationData(:,3)) / objectiveValuesPerGenerationData(:,1);
+        yvalues = ((-1) * objectiveValuesPerGenerationData(:, 3)) / objectiveValuesPerGenerationData(:, 1);
         plot(generations, yvalues);
         title('Average Objective 2 Value Per Generation', 'FontSize', 12);
         xlabel('Generation Number', 'FontSize', 12);
