@@ -46,7 +46,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 	public static final int MACD = 1;
 	public static final int RSI = 2;
 	public static final int MARSI = 3;
-	public static final int indicatorSignalIndex = DEMAC; 
+	public static final int indicatorSignalIndex = MACD; 
 	
 	private List<Double> stockData_highs;
 	private List<Double> stockData_lows;
@@ -128,13 +128,13 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
             if ( indicatorSignalIndex == DEMAC )
             {
             	g = new double[1];
-            	g[0] = x[1] - x[0]; // EMA_long >= EMA =_short
+            	g[0] = Math.round(x[1]) - Math.round(x[0]); // EMA_long >= EMA =_short
             }
             else if ( indicatorSignalIndex == MACD )
             {
             	g = new double[2];
-            	g[1] = x[1] - x[0]; // EMA_long >= EMA =_short
-            	g[2] = x[0] - x[2]; // Signal <= EMA_short
+            	g[0] = Math.round(x[1]) - Math.round(x[0]); // EMA_long >= EMA =_short
+            	g[1] = Math.round(x[0]) - Math.round(x[2]); // Signal <= EMA_short
             }
             else // Defensive programming: this code should never be reached
             {

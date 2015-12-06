@@ -64,7 +64,7 @@ public class TestScript_FixedGenerations extends TestScript {
             // *                         MODIFY START                         *
             // ********** MODIFY ********** MODIFY ********** MODIFY **********
             // Read Problem
-            URL url = UnifiedNSGA3Engine.class.getResource("../samples/demac_financial.xml");
+            URL url = UnifiedNSGA3Engine.class.getResource("../samples/macd_financial.xml");
             in = url.openStream();
             OptimizationProblem optimizationProblem = StaXParser.readProblem(in);
             // Create Evaluator

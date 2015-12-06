@@ -372,8 +372,8 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     	
     	// Find all returns using indicator voting to determine whether to buy or sell
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
-    		double determinedSignal = signals[currentDay][0] + signals[currentDay][1] + signals[currentDay][2] + signals[currentDay][3];
-    		if ((int) Math.round(determinedSignal) == 1) {
+    		int determinedSignal = signals[currentDay][0] + signals[currentDay][1] + signals[currentDay][2] + signals[currentDay][3];
+    		if ( determinedSignal >= 1 ) {
     			if ((stockData_opens.get(currentDay) < wallet) && (buy == 0)) {
     				buyvalue = stockData_opens.get(currentDay);
     				wallet -= buyvalue;
@@ -381,7 +381,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     				buy = 1;
     			}
     		}
-    		else if ((int) Math.round(determinedSignal) == -1) {
+    		else if ( determinedSignal <= -1 ) {
     			if (sell == 0) {
     				sellvalue = stockData_opens.get(currentDay);
     				wallet += sellvalue;
