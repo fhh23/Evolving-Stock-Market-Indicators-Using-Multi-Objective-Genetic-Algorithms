@@ -40,7 +40,7 @@ public class TestScript_FixedGenerations extends TestScript {
     // Number of auto generated Pareto points (used to calculate GD and/or IGD)
     static int paretoOptimalFrontPointsCount = 10000;
     // Number of runs performed to take averages
-    public static int runsCount = 1; // TODO: change the value to get multiple runs of the algorithm
+    public static int runsCount = 20;
     public static int currentRunIndex = 0;
 
     /**
@@ -64,11 +64,11 @@ public class TestScript_FixedGenerations extends TestScript {
             // *                         MODIFY START                         *
             // ********** MODIFY ********** MODIFY ********** MODIFY **********
             // Read Problem
-            URL url = UnifiedNSGA3Engine.class.getResource("../samples/macd_financial.xml");
+            URL url = UnifiedNSGA3Engine.class.getResource("../samples/fourIndicator_financial.xml");
             in = url.openStream();
             OptimizationProblem optimizationProblem = StaXParser.readProblem(in);
             // Create Evaluator
-            IndividualEvaluator individualEvaluator = new SingleIndicator_FinancialEvaluator();
+            IndividualEvaluator individualEvaluator = new FourIndicator_FinancialEvaluator();
             // Uncomment the following line only if you need the scaled version of the problem (Scaling is supported only for DTLZ1 and DTLZ2 until now(30Oct.2014))
             //((GeneralDTLZ1Evaluator)individualEvaluator).setScaled(true);
             // Create random seed
@@ -104,8 +104,8 @@ public class TestScript_FixedGenerations extends TestScript {
             int etaMStart = 20;
             int etaMEnd = 20;
             // Population Parameter
-            int popSizeStart = 800;
-            int popSizeEnd = 800;
+            int popSizeStart = 500;
+            int popSizeEnd = 500;
             // Generations Parameter
             int genCountStart = 200;
             int genCountEnd = 200;

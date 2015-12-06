@@ -108,12 +108,10 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
         // Update constraint violations if constraints exist
         if (problem.constraints != null) {
             // Three non-boundary constraints   
-            double[] g = new double[5];
-            g[0] = x[1] - x[0]; // EMA_long >= EMA =_short (DMAC)
-            g[1] = x[3] - x[2]; // EMA_long >= EMA =_short (MACD)
-            g[2] = x[2] - x[4]; // Signal <= EMA_short (MACD)
-            g[3] = x[12] + x[13] + x[14] + x[15] - 1.0; // Sum of the indicator weights >= 1
-            g[4] = 1.0 - x[12] - x[13] - x[14] - x[15]; // 1 >= Sum of the indicator weights
+            double[] g = new double[3];
+            g[0] = Math.round(x[1]) - Math.round(x[0]); // EMA_long >= EMA =_short (DMAC)
+            g[1] = Math.round(x[3]) - Math.round(x[2]); // EMA_long >= EMA =_short (MACD)
+            g[2] = Math.round(x[2]) - Math.round(x[4]); // Signal <= EMA_short (MACD)
             // Set constraints violations
             for (int i = 0; i < g.length; i++) {
                 if (g[i] < 0) {
@@ -372,6 +370,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     	
     	// Find all returns using indicator voting to determine whether to buy or sell
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
+    		// Majority voting implementation
     		int determinedSignal = signals[currentDay][0] + signals[currentDay][1] + signals[currentDay][2] + signals[currentDay][3];
     		if ( determinedSignal >= 1 ) {
     			if ((stockData_opens.get(currentDay) < wallet) && (buy == 0)) {
