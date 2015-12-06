@@ -7,11 +7,11 @@
 % Assumption: The script is placed at the same level as the
 % "generation_wise_runXXX" folders and therefore requires no input.
 
-clar all; % Clear the variable workspace
+clear all; % Clear the variable workspace
 
 %% Summary Statistics to be Performed %%
 % Modify here to turn statistics/graphs on or off
-avgFitnessPerGenetationGraphs             = 1;
+avgFitnessPerGenerationGraphs             = 1;
 paretoFrontFinalPopulationGraphAllRuns    = 1;
 paretoFrontFinalPopulationGraphSingleRun  = 0;
 objValueSummaryStatisticsAllRuns          = 1;
@@ -19,7 +19,7 @@ objValueSummaryStatisticsSingleRun        = 0;
 parameterSummaryStatisticsAllRuns         = 1;
 parameterSummaryStatisticsSingleRun       = 0;
 
-if ( avgFitnessPerGenetationGraphs || ...
+if ( avgFitnessPerGenerationGraphs || ...
      paretoFrontFinalPopulationGraphAllRuns || ...
      objValueSummaryStatisticsAllRuns || ...
      parameterSummaryStatisticsAllRuns )
@@ -31,15 +31,16 @@ if ( avgFitnessPerGenetationGraphs || ...
     numRuns = 20;
     for run = 1:numRuns
         % Construct the folder name
-        if (run < 10)
+        zeroBasedRunNum = run - 1;
+        if (zeroBasedRunNum < 10)
             folderPrefix = 'generation_wise_run00';
-        elseif ((run >= 10) && (run < 100))
+        elseif ((zeroBasedRunNum >= 10) && (zeroBasedRunNum < 100))
             folderPrefix = 'generation_wise_run0';
-        elseif (run >= 100)
+        elseif (zeroBasedRunNum >= 100)
             folderPrefix = 'generation_wise_run';
         end
-        folderName = strcat(folderPrefix, int2str(run));
-        fprtinf('Entering folder %s...\n', folderName); % DEBUG. REMOVE!
+        folderName = strcat(folderPrefix, int2str(zeroBasedRunNum));
+        fprintf('Entering folder %s...\n', folderName); % DEBUG. REMOVE!
         
         callingFolder = cd(folderName);
         
@@ -47,9 +48,9 @@ if ( avgFitnessPerGenetationGraphs || ...
         objFiles = dir('*_obj.dat');
         objFileFilenames = {objFiles.name};
      
-        if ( avgFitnessPerGenetationGraphs )            
+        if ( avgFitnessPerGenerationGraphs )            
             for gen = 1:length(objFileFilenames)
-                fileData = importdata(objFileFilenames{idx});
+                fileData = importdata(objFileFilenames{gen});
                 if (run == 1)
                     objectiveValuesPerGenerationData(gen, 1) = size(fileData, 2); % number of columns = number of individuals
                     objectiveValuesPerGenerationData(gen, 2) = sum(fileData(:,1));
@@ -80,16 +81,16 @@ if ( avgFitnessPerGenetationGraphs || ...
     end
     
     if (avgFitnessPerGenerationGraphs)
-        generations = [1:size(objectiveValuesPerGenerationData, 2)];
+        generations = [1:size(objectiveValuesPerGenerationData, 1)];
         figure;
-        yvalues = ((-1) * objectiveValuesPerGenerationData(:, 2)) / objectiveValuesPerGenerationData(:, 1);
-        plot(generations, yvalues);
+        yvalues = ((-1) .* objectiveValuesPerGenerationData(:, 2)) ./ objectiveValuesPerGenerationData(:, 1);
+        plot(generations, yvalues, '-o');
         title('Average Objective 1 Value Per Generation', 'FontSize', 12);
         xlabel('Generation Number', 'FontSize', 12);
         ylabel('Objective 1 Value', 'FontSize', 12);
         figure;
-        yvalues = ((-1) * objectiveValuesPerGenerationData(:, 3)) / objectiveValuesPerGenerationData(:, 1);
-        plot(generations, yvalues);
+        yvalues = ((-1) .* objectiveValuesPerGenerationData(:, 3)) ./ objectiveValuesPerGenerationData(:, 1);
+        plot(generations, yvalues, '-o');
         title('Average Objective 2 Value Per Generation', 'FontSize', 12);
         xlabel('Generation Number', 'FontSize', 12);
         ylabel('Objective 2 Value', 'FontSize', 12);
@@ -98,7 +99,7 @@ if ( avgFitnessPerGenetationGraphs || ...
     if ( paretoFrontFinalPopulationGraphAllRuns )
         finalPopulationObjectiveValues = finalPopulationObjectiveValues .* (-1);
         figure;
-        plot(finalPopulationObjectiveValues(:,1), finalPopulationObjectiveValues(:, 2));
+        scatter(finalPopulationObjectiveValues(:,1), finalPopulationObjectiveValues(:, 2));
         title('Final Population Objective 2 versus Objective 1 Values for All Runs', 'FontSize', 12);
         xlabel('Objective 1 Value', 'FontSize', 12);
         ylabel('Objective 2 Value', 'FontSize', 12);
@@ -130,7 +131,7 @@ if ( avgFitnessPerGenetationGraphs || ...
         fprintf('\tMARSI RSI Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(9), minValues(9), maxValues(9));
         fprintf('\tMARSI Lower Boundary: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(10), minValues(10), maxValues(10));
         fprintf('\tMARSI Upper Boundary: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(11), minValues(11), maxValues(11));
-        fprintf('\tMARSI SMA Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(11), minValues(12), maxValues(12));
+        fprintf('\tMARSI SMA Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(12), minValues(12), maxValues(12));
     end
 end
 
