@@ -25,10 +25,10 @@ or "many-objective" -->
         <objective type="min">0</objective>
     </objectives>
     <!-- structured reference points -->
-    <structured-reference-points steps="199" adaptive="false"/>
+    <structured-reference-points steps="799" adaptive="false"/>
     <!-- population size -->
     <population-size>
-        200
+        800
     </population-size>
     <!-- number of generations -->
     <generations-count>

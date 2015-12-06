@@ -64,7 +64,7 @@ public class TestScript_FixedGenerations extends TestScript {
             // *                         MODIFY START                         *
             // ********** MODIFY ********** MODIFY ********** MODIFY **********
             // Read Problem
-            URL url = UnifiedNSGA3Engine.class.getResource("../samples/rsi_financial.xml");
+            URL url = UnifiedNSGA3Engine.class.getResource("../samples/demac_financial.xml");
             in = url.openStream();
             OptimizationProblem optimizationProblem = StaXParser.readProblem(in);
             // Create Evaluator
@@ -104,8 +104,8 @@ public class TestScript_FixedGenerations extends TestScript {
             int etaMStart = 20;
             int etaMEnd = 20;
             // Population Parameter
-            int popSizeStart = 200;
-            int popSizeEnd = 200;
+            int popSizeStart = 800;
+            int popSizeEnd = 800;
             // Generations Parameter
             int genCountStart = 200;
             int genCountEnd = 200;

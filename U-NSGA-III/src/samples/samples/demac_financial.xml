@@ -6,7 +6,7 @@ and open the template in the editor.
 
 <!-- id can be anything. type is either "single-objective", "multi-objective"
 or "many-objective" -->
-<optimization-problem id="rsi_financial" type="mutli-objective">
+<optimization-problem id="demac_financial" type="mutli-objective">
     <!-- a seed has to be in the range ]0,1[ -->
     <seed>
         0.5
@@ -23,11 +23,15 @@ or "many-objective" -->
         <objective type="min">0</objective>
         <objective type="min">0</objective>
     </objectives>
+	<!-- constraints -->
+    <constraints>
+        <constraint type="inequality">0</constraint>
+    </constraints>
     <!-- structured reference points -->
-    <structured-reference-points steps="199" adaptive="false"/>
+    <structured-reference-points steps="799" adaptive="false"/>
     <!-- population size -->
     <population-size>
-        200
+        800
     </population-size>
     <!-- number of generations -->
     <generations-count>

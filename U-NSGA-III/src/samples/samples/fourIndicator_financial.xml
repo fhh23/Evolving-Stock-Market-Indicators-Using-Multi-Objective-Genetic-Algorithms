@@ -37,6 +37,12 @@ or "many-objective" -->
         <objective type="min">0</objective>
         <objective type="min">0</objective>
     </objectives>
+	<!-- constraints -->
+    <constraints>
+        <constraint type="inequality">0</constraint>
+        <constraint type="inequality">0</constraint>
+		<constraint type="inequality">0</constraint>
+    </constraints>
     <!-- structured reference points -->
     <structured-reference-points steps="199" adaptive="false"/>
     <!-- population size -->

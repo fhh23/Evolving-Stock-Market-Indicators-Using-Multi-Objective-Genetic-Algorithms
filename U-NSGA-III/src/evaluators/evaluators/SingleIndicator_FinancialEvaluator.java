@@ -42,7 +42,11 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 {
 	// Indicates which indicator is being tested by this run
 	// 0 = DEMAC, 1 = MACD, 2 = RSI, 3 = MARSI
-	public static final int indicatorSignalIndex = 2; 
+	public static final int DEMAC = 0;
+	public static final int MACD = 1;
+	public static final int RSI = 2;
+	public static final int MARSI = 3;
+	public static final int indicatorSignalIndex = DEMAC; 
 	
 	private List<Double> stockData_highs;
 	private List<Double> stockData_lows;
@@ -114,26 +118,28 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
         // Announce that objective function values are valid
         individual.validObjectiveFunctionsValues = true;
         // Update constraint violations if constraints exist
-        if ( (indicatorSignalIndex == 2) || (indicatorSignalIndex == 3) )
+        if ( (indicatorSignalIndex == RSI) || (indicatorSignalIndex == MARSI) )
         {
         	// No non-boundary constraints for RSI or MARSI
         	problem.constraints = null;
         }
         if (problem.constraints != null) {
         	double[] g;
-            if ( indicatorSignalIndex == 0 )
+            if ( indicatorSignalIndex == DEMAC )
             {
             	g = new double[1];
             	g[0] = x[1] - x[0]; // EMA_long >= EMA =_short
             }
-            else if ( indicatorSignalIndex == 1 )
+            else if ( indicatorSignalIndex == MACD )
             {
             	g = new double[2];
-            	g[1] = x[3] - x[2]; // EMA_long >= EMA =_short
-            	g[2] = x[2] - x[4]; // Signal <= EMA_short
+            	g[1] = x[1] - x[0]; // EMA_long >= EMA =_short
+            	g[2] = x[0] - x[2]; // Signal <= EMA_short
             }
-            else
+            else // Defensive programming: this code should never be reached
+            {
             	g = new double[0];
+            }
             // Set constraints violations
             for (int i = 0; i < g.length; i++) {
                 if (g[i] < 0) {
@@ -249,7 +255,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 		double ema_short_demac; double ema_long_demac;
 		int short_amt_days = 0; double short_multiplier = 0;
 		int long_amt_days = 0; double long_multiplier = 0;
-    	if ( indicatorSignalIndex == 0 )
+    	if ( indicatorSignalIndex == DEMAC )
     	{
     		previousEMA_short = 0; previousEMA_long = 0;
     		short_amt_days = (int) Math.round(x[0]);
@@ -263,7 +269,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 		List<Double> ema_long_macd = null;
 		List<Double> macd_line = null;
 		List<Double> signal_line = null;
-    	if ( indicatorSignalIndex == 1 )
+    	if ( indicatorSignalIndex == MACD )
     	{
     		ema_short_macd = calculateEMA((int) Math.round(x[0]), stockData_closes);
     		ema_long_macd = calculateEMA((int) Math.round(x[1]), stockData_closes);
@@ -278,11 +284,25 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     		signal_line = calculateEMA((int) Math.round(x[2]), macd_line);
     	}
     	
+    	/* MARSI */
+    	List<Double> marsi_rsi_values = null;
+    	if ( indicatorSignalIndex == MARSI )
+    	{
+    		marsi_rsi_values = new ArrayList<Double>();
+    		// For loop skips day 0 of the data because n for RSI calculations is >= 1
+    		marsi_rsi_values.add(0.0);
+    		for ( int currentDay = 1; currentDay < stockData_closes.size(); currentDay++ )
+    		{
+    			marsi_rsi_values.add(calculateRSI(currentDay, (int) Math.round(x[0])));
+    		}
+    	}
+    			
+    	
     	/* Perform all evaluator calculations for the current day and set all 4 buy/sell signals */
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
 
     		/* DEMAC (Double EMA Crossovers) */
-    		if ( indicatorSignalIndex == 0 )
+    		if ( indicatorSignalIndex == DEMAC )
     		{
     			// Calculate the EMA values based on the closing stock price data for the current day
     			// EMAs are calculated inline to save storage space (no need to save every value)
@@ -318,7 +338,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     		}
 
     		/* MACD (Moving Average Convergence/Divergence) */
-    		else if ( indicatorSignalIndex == 1)
+    		else if ( indicatorSignalIndex == MACD )
     		{
     			if (currentDay != 0)
     			{
@@ -341,7 +361,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     		
 
     		/* RSI (Relative Strength Index) */
-    		else if ( indicatorSignalIndex == 2 )
+    		else if ( indicatorSignalIndex == RSI )
     		{
     			if ( currentDay != 0 )
     			{
@@ -359,7 +379,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     		}
 
     		/* MARSI */
-    		else if ( indicatorSignalIndex == 3 )
+    		else if ( indicatorSignalIndex == MARSI )
     		{
     			if ( currentDay != 0 )
     			{
@@ -369,7 +389,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     				{
     					if (observeDay <= 0)
     						break;
-    					rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[0]));
+    					rsi_sum  += marsi_rsi_values.get(observeDay);
     				}
     				double marsi = rsi_sum / ((double) (currentDay - observeDay));
     				if (marsi < x[1]) {
@@ -383,7 +403,6 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     			else
 					signals[currentDay] = 0;
     		}
-
     	}
     }
 
@@ -449,6 +468,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
     	if (returns.size() > 4)
     	{
     		sharpe_ratio = average/stddev;
+    		// System.out.println("returns size " + returns.size());
     	}
     	// else: sharpe_ratio remains equal to 0
     	

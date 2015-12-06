@@ -243,6 +243,16 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     		}
     	}
     	List<Double> signal_line = calculateEMA((int) Math.round(x[4]), macd_line);
+		
+		/* MARSI */
+		// Precalculations of the RSI values provides significant speedup in SMA calculation
+    	List<Double> marsi_rsi_values = new ArrayList<Double>();
+    	// For loop skips day 0 of the data because n for RSI calculations is >= 1
+    	marsi_rsi_values.add(0.0);
+    	for ( int currentDay = 1; currentDay < stockData_closes.size(); currentDay++ )
+    	{
+    		marsi_rsi_values.add(calculateRSI(currentDay, (int) Math.round(x[8])));
+    	}
     	
     	/* Perform all evaluator calculations for the current day and set all 4 buy/sell signals */
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
@@ -302,32 +312,46 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     		
 
     		/* RSI (Relative Strength Index) */
-    		double rsi = calculateRSI(currentDay, (int) Math.round(x[5])); 
-    		if (rsi < x[6]) {
-    			signals[currentDay][2] = 1; // Over-sold condition: buy
-    		} else if (rsi > x[7]) {
-    			signals[currentDay][2] = -1; // Over-bought condition: sell
-    		} else {
-    			signals[currentDay][2] = 0;
-    		}
+    		if ( currentDay != 0 )
+			{
+				double rsi = calculateRSI(currentDay, (int) Math.round(x[5])); 
+				if (rsi < x[6]) {
+					signals[currentDay][2] = 1; // Over-sold condition: buy
+				} else if (rsi > x[7]) {
+					signals[currentDay][2] = -1; // Over-bought condition: sell
+				} else {
+					signals[currentDay][2] = 0;
+				}
+			}
+			else
+			{
+				signals[currentDay][2] = 0;
+			}
 
     		/* MARSI */
-    		int sma_days = (int) Math.round(x[11]);
-    		int observeDay; double rsi_sum = 0;
-    		for (observeDay = currentDay; observeDay > currentDay - sma_days; observeDay--)
-    		{
-    			if (observeDay <= 0)
-    				break;
-    			rsi_sum  += calculateRSI(observeDay, (int) Math.round(x[8]));
-    		}
-    		double marsi = rsi_sum / ((double) (currentDay - observeDay));
-    		if (marsi < x[9]) {
-    			signals[currentDay][3] = 1; // Oversold condition: buy
-    		} else if (marsi > x[10]) {
-    			signals[currentDay][3] = -1; // Overbought condition: sell
-    		} else {
-    			signals[currentDay][3] = 0;
-    		}
+			if ( currentDay != 0 )
+			{
+				int sma_days = (int) Math.round(x[11]);
+				int observeDay; double rsi_sum = 0;
+				for (observeDay = currentDay; observeDay > currentDay - sma_days; observeDay--)
+				{
+					if (observeDay <= 0)
+						break;
+					rsi_sum  += marsi_rsi_values.get(observeDay);
+				}
+				double marsi = rsi_sum / ((double) (currentDay - observeDay));
+				if (marsi < x[9]) {
+					signals[currentDay][3] = 1; // Oversold condition: buy
+				} else if (marsi > x[10]) {
+					signals[currentDay][3] = -1; // Overbought condition: sell
+				} else {
+					signals[currentDay][3] = 0;
+				}
+			}
+			else
+			{
+				signals[currentDay][3] = 0;
+			}
 
     	}
     }
@@ -348,9 +372,8 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     	
     	// Find all returns using indicator voting to determine whether to buy or sell
     	for ( int currentDay = 0; currentDay < stockData_closes.size(); currentDay++ ) {
-    		// double determinedSignal = (x[12] * signals[currentDay][0] + x[13] * signals[currentDay][1] + x[14] * signals[currentDay][2] + x[15] * signals[currentDay][3]) / 4.0;
-    		// if ((int) Math.round(determinedSignal) == 1) {
-    		if(signals[currentDay][2] == 1) {
+    		double determinedSignal = signals[currentDay][0] + signals[currentDay][1] + signals[currentDay][2] + signals[currentDay][3];
+    		if ((int) Math.round(determinedSignal) == 1) {
     			if ((stockData_opens.get(currentDay) < wallet) && (buy == 0)) {
     				buyvalue = stockData_opens.get(currentDay);
     				wallet -= buyvalue;
@@ -358,8 +381,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     				buy = 1;
     			}
     		}
-    		// else if ((int) Math.round(determinedSignal) == -1) {
-    		else if (signals[currentDay][2] == -1) {
+    		else if ((int) Math.round(determinedSignal) == -1) {
     			if (sell == 0) {
     				sellvalue = stockData_opens.get(currentDay);
     				wallet += sellvalue;
