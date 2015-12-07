@@ -103,6 +103,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
         double[] objs = getObjectives(x);
         individual.setObjective(0, objs[0]);
         individual.setObjective(1, objs[1]);
+        individual.setObjective(2, objs[2]);
         // Announce that objective function values are valid
         individual.validObjectiveFunctionsValues = true;
         // Update constraint violations if constraints exist
@@ -421,7 +422,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     	}
     	// else: sharpe_ratio remains equal to 0
     	
-    	double[] objs = {(-1) * annual_return, (-1) * sharpe_ratio};
+    	double[] objs = {(-1) * annual_return, (-1) * sharpe_ratio, returns.size()};
 		return objs;
     }
 }

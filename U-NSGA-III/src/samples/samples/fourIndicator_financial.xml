@@ -32,6 +32,7 @@ or "many-objective" -->
     <objectives>
         <objective type="min">0</objective>
         <objective type="min">0</objective>
+		<objective type="min">0</objective>
     </objectives>
 	<!-- constraints -->
     <constraints>
@@ -40,10 +41,10 @@ or "many-objective" -->
 		<constraint type="inequality">0</constraint>
     </constraints>
     <!-- structured reference points -->
-    <structured-reference-points steps="499" adaptive="false"/>
+    <structured-reference-points steps="25" adaptive="false"/>
     <!-- population size -->
     <population-size>
-        500
+        352
     </population-size>
     <!-- number of generations -->
     <generations-count>

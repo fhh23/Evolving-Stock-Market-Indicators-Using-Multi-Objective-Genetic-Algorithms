@@ -40,7 +40,7 @@ public class TestScript_FixedGenerations extends TestScript {
     // Number of auto generated Pareto points (used to calculate GD and/or IGD)
     static int paretoOptimalFrontPointsCount = 10000;
     // Number of runs performed to take averages
-    public static int runsCount = 20;
+    public static int runsCount = 10;
     public static int currentRunIndex = 0;
 
     /**
@@ -104,8 +104,8 @@ public class TestScript_FixedGenerations extends TestScript {
             int etaMStart = 20;
             int etaMEnd = 20;
             // Population Parameter
-            int popSizeStart = 500;
-            int popSizeEnd = 500;
+            int popSizeStart = 352;
+            int popSizeEnd = 352;
             // Generations Parameter
             int genCountStart = 200;
             int genCountEnd = 200;
