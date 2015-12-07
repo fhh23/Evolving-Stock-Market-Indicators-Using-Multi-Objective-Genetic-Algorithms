@@ -103,11 +103,10 @@ if ( avgFitnessPerGenerationGraphs || ...
     end
     
     if ( paretoFrontFinalPopulationGraphAllRuns )
-        finalPopulationObjectiveValuesPareto = finalPopulationObjectiveValues;
-        finalPopulationObjectiveValuesPareto(:,1:2) = finalPopulationObjectiveValuesPareto(:,1:2) .* (-1);
+        finalPopulationObjectiveValues(:,1:2) = finalPopulationObjectiveValues(:,1:2) .* (-1);
         % Do not multiply the third objective (minimization of returns) by -1
         figure;
-        scatter3(finalPopulationObjectiveValuesPareto(:,1), finalPopulationObjectiveValuesPareto(:, 2), finalPopulationObjectiveValuesPareto(:,3));
+        scatter3(finalPopulationObjectiveValues(:,1), finalPopulationObjectiveValues(:, 2), finalPopulationObjectiveValues(:,3));
         title('Final Population Objective Values Comparison for All Runs', 'FontSize', 14);
         xlabel('Objective 1 Value', 'FontSize', 14);
         ylabel('Objective 2 Value', 'FontSize', 14);
@@ -115,12 +114,11 @@ if ( avgFitnessPerGenerationGraphs || ...
     end
     
     if ( objValueSummaryStatisticsAllRuns )
-        finalPopulationObjectiveValuesSummary = finalPopulationObjectiveValues;
-        finalPopulationObjectiveValuesSummary(:,1:2) = finalPopulationObjectiveValuesSummary(:,1:2) .* (-1);
+        finalPopulationObjectiveValues = finalPopulationObjectiveValues .* (-1);
         fprintf('[ Objective Value Summary Statistics Over All Runs ]\n');
-        meanValues = mean(finalPopulationObjectiveValuesSummary);
-        minValues = min(finalPopulationObjectiveValuesSummary);
-        maxValues = max(finalPopulationObjectiveValuesSummary);
+        meanValues = mean(finalPopulationObjectiveValues);
+        minValues = min(finalPopulationObjectiveValues);
+        maxValues = max(finalPopulationObjectiveValues);
         fprintf('\tObjective 1: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', 100 * meanValues(1), 100 * minValues(1), 100 * maxValues(1)); 
         fprintf('\tObjective 2: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(2), minValues(2), maxValues(2));
         fprintf('\tObjective 3: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(3), minValues(3), maxValues(3));

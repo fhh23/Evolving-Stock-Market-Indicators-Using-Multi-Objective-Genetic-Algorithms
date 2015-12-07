@@ -41,10 +41,10 @@ or "many-objective" -->
 		<constraint type="inequality">0</constraint>
     </constraints>
     <!-- structured reference points -->
-    <structured-reference-points steps="25" adaptive="false"/>
+    <structured-reference-points steps="12" adaptive="false"/>
     <!-- population size -->
     <population-size>
-        352
+        92
     </population-size>
     <!-- number of generations -->
     <generations-count>

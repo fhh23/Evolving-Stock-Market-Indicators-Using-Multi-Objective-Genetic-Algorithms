@@ -104,8 +104,8 @@ public class TestScript_FixedGenerations extends TestScript {
             int etaMStart = 20;
             int etaMEnd = 20;
             // Population Parameter
-            int popSizeStart = 352;
-            int popSizeEnd = 352;
+            int popSizeStart = 92;
+            int popSizeEnd = 92;
             // Generations Parameter
             int genCountStart = 200;
             int genCountEnd = 200;
