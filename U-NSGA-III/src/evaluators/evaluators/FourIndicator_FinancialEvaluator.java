@@ -52,7 +52,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
 		
 		// TODO: Determine the relative path for this file
 		// Change this line for the location on your computer!
-		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL.csv");
+		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL_Short.csv");
 		
 		// Read the data into the ArrayLists
 		// Note: the CSV file should be formatted with: (a) headers as the first line,
@@ -243,7 +243,7 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
     	List<Double> signal_line = calculateEMA((int) Math.round(x[4]), macd_line);
 		
 		/* MARSI */
-		// Precalculations of the RSI values provides significant speedup in SMA calculation
+		// Precalculation of the RSI values provides significant speedup in SMA calculation
     	List<Double> marsi_rsi_values = new ArrayList<Double>();
     	// For loop skips day 0 of the data because n for RSI calculations is >= 1
     	marsi_rsi_values.add(0.0);
@@ -339,9 +339,9 @@ public class FourIndicator_FinancialEvaluator extends IndividualEvaluator
 				}
 				double marsi = rsi_sum / ((double) (currentDay - observeDay));
 				if (marsi < x[9]) {
-					signals[currentDay][3] = 1; // Oversold condition: buy
+					signals[currentDay][3] = 1; // Over-sold condition: buy
 				} else if (marsi > x[10]) {
-					signals[currentDay][3] = -1; // Overbought condition: sell
+					signals[currentDay][3] = -1; // Over-bought condition: sell
 				} else {
 					signals[currentDay][3] = 0;
 				}

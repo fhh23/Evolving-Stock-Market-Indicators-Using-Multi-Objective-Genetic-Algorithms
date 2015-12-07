@@ -46,7 +46,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 	public static final int MACD = 1;
 	public static final int RSI = 2;
 	public static final int MARSI = 3;
-	public static final int indicatorSignalIndex = MACD; 
+	public static final int indicatorSignalIndex = MARSI; 
 	
 	private List<Double> stockData_highs;
 	private List<Double> stockData_lows;
@@ -64,7 +64,7 @@ public class SingleIndicator_FinancialEvaluator extends IndividualEvaluator
 		
 		// TODO: Determine the relative path for this file
 		// Change this line for the location on your computer!
-		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL.csv");
+		File djiaDataFile = new File("C:/Users/breif/Documents/MSU/CSE848/cse_848_project/DJI_Data/AAPL_Short.csv");
 		
 		// Read the data into the ArrayLists
 		// Note: the CSV file should be formatted with: (a) headers as the first line,

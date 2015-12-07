@@ -28,7 +28,7 @@ if ( avgFitnessPerGenerationGraphs || ...
     objectiveValuesPerGenerationData = [];
     finalPopulationObjectiveValues = [];
     finalPopulationParameterValues = [];
-    numRuns = 20;
+    numRuns = 10; % Hard coded value!
     for run = 1:numRuns
         % Construct the folder name
         zeroBasedRunNum = run - 1;
@@ -52,12 +52,12 @@ if ( avgFitnessPerGenerationGraphs || ...
             for gen = 1:length(objFileFilenames)
                 fileData = importdata(objFileFilenames{gen});
                 if (run == 1)
-                    objectiveValuesPerGenerationData(gen, 1) = size(fileData, 2); % number of columns = number of individuals
+                    objectiveValuesPerGenerationData(gen, 1) = size(fileData, 1); % number of rows = number of individuals
                     objectiveValuesPerGenerationData(gen, 2) = sum(fileData(:,1));
                     objectiveValuesPerGenerationData(gen, 3) = sum(fileData(:,2));
                     % objectiveValuesPerGenerationData(gen, 4) = sum(fileData(:,3));
                 else
-                    objectiveValuesPerGenerationData(gen, 1) = objectiveValuesPerGenerationData(gen, 1) + size(fileData, 2); % number of columns = number of individuals
+                    objectiveValuesPerGenerationData(gen, 1) = objectiveValuesPerGenerationData(gen, 1) + size(fileData, 1); % number of rows = number of individuals
                     objectiveValuesPerGenerationData(gen, 2) = objectiveValuesPerGenerationData(gen, 2) + sum(fileData(:,1));
                     objectiveValuesPerGenerationData(gen, 3) = objectiveValuesPerGenerationData(gen, 3) + sum(fileData(:,2));
                     % objectiveValuesPerGenerationData(gen, 4) = objectiveValuesPerGenerationData(gen, 4) + sum(fileData(:,3));
@@ -85,24 +85,24 @@ if ( avgFitnessPerGenerationGraphs || ...
         figure;
         yvalues = ((-1) .* objectiveValuesPerGenerationData(:, 2)) ./ objectiveValuesPerGenerationData(:, 1);
         plot(generations, yvalues, '-o');
-        title('Average Objective 1 Value Per Generation', 'FontSize', 12);
-        xlabel('Generation Number', 'FontSize', 12);
-        ylabel('Objective 1 Value', 'FontSize', 12);
+        title('Average Objective 1 Value Per Generation', 'FontSize', 14);
+        xlabel('Generation Number', 'FontSize', 14);
+        ylabel('Objective 1 Value', 'FontSize', 14);
         figure;
         yvalues = ((-1) .* objectiveValuesPerGenerationData(:, 3)) ./ objectiveValuesPerGenerationData(:, 1);
         plot(generations, yvalues, '-o');
-        title('Average Objective 2 Value Per Generation', 'FontSize', 12);
-        xlabel('Generation Number', 'FontSize', 12);
-        ylabel('Objective 2 Value', 'FontSize', 12);
+        title('Average Objective 2 Value Per Generation', 'FontSize', 14);
+        xlabel('Generation Number', 'FontSize', 14);
+        ylabel('Objective 2 Value', 'FontSize', 14);
     end
     
     if ( paretoFrontFinalPopulationGraphAllRuns )
         finalPopulationObjectiveValues = finalPopulationObjectiveValues .* (-1);
         figure;
         scatter(finalPopulationObjectiveValues(:,1), finalPopulationObjectiveValues(:, 2));
-        title('Final Population Objective 2 versus Objective 1 Values for All Runs', 'FontSize', 12);
-        xlabel('Objective 1 Value', 'FontSize', 12);
-        ylabel('Objective 2 Value', 'FontSize', 12);
+        title('Final Population Objective 2 versus Objective 1 Values for All Runs', 'FontSize', 14);
+        xlabel('Objective 1 Value', 'FontSize', 14);
+        ylabel('Objective 2 Value', 'FontSize', 14);
     end
     
     if ( objValueSummaryStatisticsAllRuns )
@@ -113,6 +113,9 @@ if ( avgFitnessPerGenerationGraphs || ...
         maxValues = max(finalPopulationObjectiveValues);
         fprintf('\tObjective 1: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', 100 * meanValues(1), 100 * minValues(1), 100 * maxValues(1)); 
         fprintf('\tObjective 2: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(2), minValues(2), maxValues(2));
+        objValueSummaryStatisticsTable = [];
+        objValueSummaryStatisticsTable(1, :) = [ (-100) * meanValues(1) (-100) * maxValues(1) (-100) * minValues(1) ];
+        objValueSummaryStatisticsTable(2, :) = [ (-1) * meanValues(2) (-1) * maxValues(2) (-1) * minValues(2) ];
     end
     
     if ( parameterSummaryStatisticsAllRuns )
@@ -132,6 +135,10 @@ if ( avgFitnessPerGenerationGraphs || ...
         fprintf('\tMARSI Lower Boundary: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(10), minValues(10), maxValues(10));
         fprintf('\tMARSI Upper Boundary: Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(11), minValues(11), maxValues(11));
         fprintf('\tMARSI SMA Lookback  : Average = %.4f, Minimum = %.4f, Maximum = %.4f\n', meanValues(12), minValues(12), maxValues(12));
+        parameterValueSummaryStatisticsTable = [];
+        parameterValueSummaryStatisticsTable(:, 1) = meanValues';
+        parameterValueSummaryStatisticsTable(:, 2) = minValues';
+        parameterValueSummaryStatisticsTable(:, 3) = maxValues';
     end
 end
 
