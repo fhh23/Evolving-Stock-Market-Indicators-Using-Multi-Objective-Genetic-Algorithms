@@ -1,2 +1,3 @@
-# cse_848_project
-Project material for CSE 848 (Survey of Evolutionary Computation) Fall 2015
+Evolutionary Computation Project -- Using Multi Objective Optimization
+
+Team Members: Farhan Hormasji and Bonnie Reiff
